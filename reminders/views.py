@@ -39,10 +39,13 @@ def user_login(request):
 	context = RequestContext(request)
 
 	if request.method == 'POST':
+		#email = request.POST['email']
 		username = request.POST['username']
+		#email = request.POST.get('email', False)
 		password = request.POST['password']
 		
 		user = authenticate(username=username, password=password)
+		#user = authenticate(email=email, password=password)
 
 		if user: #successful login
 			if user.is_active:
@@ -51,7 +54,7 @@ def user_login(request):
 			else:
 				return HttpResponse("You're reminder.me account is currently disabled")
 		else: # bad login info
-			print "Invalid login info: {0}, {1}".format(email, password)
+			print "Invalid login info: {0}, {1}".format(username, password)
 			return HttpResponse("Invalid login credentials")
 
 	else: #not a post, probably a get, show login page
