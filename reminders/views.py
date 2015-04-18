@@ -1,12 +1,42 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from reminders.forms import UserForm, UserProfileForm
-from django.template import RequestContext
+from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from .models import Reminder, UserProfile
+from django.contrib.auth.models import User
 # Create your views here.
 
+@login_required
+def account(request):
+	return HttpResponse("This will be the Account page some day!")
+
+@login_required
+def home(request):
+	r_user = request.user
+	#print r_user
+	#print User.objects.get(username='hi').id
+	#print UserProfile.objects.get(id=8)
+	reminder_list = Reminder.objects.filter(user=UserProfile.objects.get(user_id=User.objects.get(username=r_user).id))
+	#reminder_list = Reminder.objects.filter(user=r_user)
+	print reminder_list
+	template = loader.get_template('reminders/home.html')
+	context = RequestContext(request, {'reminder_list' : reminder_list,})
+	return HttpResponse(template.render(context))	
+#	return HttpResponse("This will be the Reminders home page some day!")
+
+@login_required
+def user_logged_in(request):
+	return HttpResponse('reminders/logged-in.html')	
+
+
 def register(request):
+
+	if request.user.is_authenticated():
+		return HttpResponseRedirect('/reminders/logged-in/')
+
 	context = RequestContext(request)
 	registered = False
 	
@@ -35,6 +65,12 @@ def register(request):
 			{'user_form': user_form, 'profile_form' : profile_form, 'registered' : registered},
 			context)	
 
+@login_required
+def user_logout(request):
+	logout(request)
+	return HttpResponseRedirect('/reminders/')
+
+
 def user_login(request):
 	context = RequestContext(request)
 
@@ -50,7 +86,9 @@ def user_login(request):
 		if user: #successful login
 			if user.is_active:
 				login(request, user)
-				return HttpResponseRedirect('/reminders/')
+				return render_to_response('reminders/logged-in.html', {}, context)
+				#return HttpResponse("You're successfully logged in to remind.me! Neat stuff is on it's way, stay tuned!")
+				#return HttpResponseRedirect('/reminders/perrty-login/')
 			else:
 				return HttpResponse("You're reminder.me account is currently disabled")
 		else: # bad login info

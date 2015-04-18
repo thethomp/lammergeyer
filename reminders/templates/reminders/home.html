@@ -1,0 +1,9 @@
+{% if reminder_list %}
+    <ul>
+    {% for reminder in reminder_list %}
+        <li><a href="/reminders/{{ reminder.id }}/">{{ reminder.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No reminders are available.</p>
+{% endif %}

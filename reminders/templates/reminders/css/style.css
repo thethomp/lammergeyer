@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <title>remind.me Perrrrrrty Login</title>
-
-    <style>
 @import url(http://fonts.googleapis.com/css?family=Exo:100,200,400);
 @import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:700,400,300);
 
@@ -30,7 +20,7 @@ body{
 	width: auto;
 	height: auto;
 /*	background-image: url(http://ginva.com/wp-content/uploads/2012/07/city-skyline-wallpapers-008.jpg); */
-	background-image: url(http://bennettfeely.com/gradients/img/gradient_8.png); 
+	background-image: url(matrix.jpg);
 	background-size: cover;
 	-webkit-filter: blur(5px);
 	z-index: 0;
@@ -105,7 +95,7 @@ body{
 	margin-top: 10px;
 }
 
-.login input[type=submit]{
+input[type=submit]{
 	width: 260px;
 	height: 35px;
 	background: #fff;
@@ -120,11 +110,11 @@ body{
 	margin-top: 10px;
 }
 
-.login input[type=submit]:hover{
+input[type=submit]:hover{
 	opacity: 0.8;
 }
 
-.login input[type=submit]:active{
+input[type=submit]:active{
 	opacity: 0.6;
 }
 
@@ -138,7 +128,7 @@ body{
 	border: 1px solid rgba(255,255,255,0.9);
 }
 
-.login input[type=submit]:focus{
+input[type=submit]:focus{
 	outline: none;
 }
 
@@ -149,34 +139,3 @@ body{
 ::-moz-input-placeholder{
    color: rgba(255,255,255,0.6);
 }
-</style>
-
-    <script src="js/prefixfree.min.js"></script>
-
-</head>
-
-<body>
-
-  <div class="body"></div>
-		<div class="grad"></div>
-		<div class="header">
-			<div>remind<span>me</span></div>
-		</div>
-		<br>
-		<div class="login">
-		<form id="login_form" method="post" action="/reminders/login/">
-				{% csrf_token %}
-				<input type="text" name="username"><br>
-				<input type="password" name="password"><br>
-			<!--	
-				<button type="submit" value="button">
-	-->
-			<input type="submit" value="submit"><br> 
-		</form>
-		</div>
-
-  <script src='http://codepen.io/assets/libs/fullpage/jquery.js'></script>
-
-</body>
-
-</html>
