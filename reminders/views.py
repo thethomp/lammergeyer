@@ -29,7 +29,9 @@ def home(request):
 
 @login_required
 def user_logged_in(request):
-	return HttpResponse('reminders/logged-in.html')	
+	template = loader.get_template('reminders/logged-in.html')
+	context = RequestContext(request)
+	return HttpResponse(template.render(context)) #'reminders/logged-in.html')
 
 
 def register(request):
@@ -68,7 +70,7 @@ def register(request):
 @login_required
 def user_logout(request):
 	logout(request)
-	return HttpResponseRedirect('/reminders/')
+	return HttpResponseRedirect('/reminders/logout/')
 
 
 def user_login(request):
@@ -99,6 +101,9 @@ def user_login(request):
 		return render_to_response('reminders/login.html', {}, context)
 
 
+def about(request):
+	return HttpResponse("ABOUT page placeholder")
+
 def index( request ):
 	#return render_to_response
-	return HttpResponse("hello world. You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
+	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
