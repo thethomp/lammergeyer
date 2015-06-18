@@ -1,7 +1,16 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdrive
+from selenium import webdriver
 
 class FunctionalTest(StaticLiveServerTestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		super(FunctionalTest, cls).setUpClass()
+		cls.server_url = cls.live_server_url
+
+	@classmethod
+	def teadDownClass(cls):
+		super(FunctionalTest, cls).tearDownClass()
 
 	def setUp(self):
 		self.browser = webdriver.Firefox() #we start the browser here

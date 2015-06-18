@@ -107,3 +107,6 @@ def about(request):
 def index( request ):
 	#return render_to_response
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
+
+def home_page(request):
+	return render(request, 'reminders/home.html')
