@@ -5,7 +5,9 @@
 {% block header_text %}Your Reminders{% endblock%}
 
 {% block content %}
-	<button id="id_new_reminder_btn" type="button" class="btn btn-danger btn-block">
-	Create a new reminder!
-	</button>
+	{% include 'reminders/_panel_base.html' %}
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
 {% endblock %}
