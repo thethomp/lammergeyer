@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException
+from selenium.webdriver.common.keys import Keys
 
 class NewVisitorTest(FunctionalTest):
 
@@ -46,32 +47,33 @@ class NewVisitorTest(FunctionalTest):
 		self.browser.find_element_by_id('id_new_reminder_btn').click()
 
 		# Four fields are necessary for a reminder
-		form = self.browser.find_element_by_id('id_new_reminder_form')
+		form = self.browser.find_element_by_tag_name('form')
 		fields = [input for input in form.find_elements_by_tag_name('input')]
-		self.assertEqual(len(fields), 4)
+		self.assertEqual(len(fields), 5)
 
 		# A new reminder is created to "Buy milk"
 		reminder_title = self.browser.find_element_by_id('id_new_reminder_title')
-		reminder_title.send_keys('Buy milk')
+		reminder_title.send_keys('Buy milk\n')
 
 		# The reminder is set for 06/23/2015
 		reminder_alarm = self.browser.find_element_by_id('id_new_reminder_alarm')
-		reminder_alarm.send_keys('06/23/2015')
+		reminder_alarm.send_keys('06/23/2015\n')
 
 		# The reminder is given a snooze of '10'
 		reminder_snooze = self.browser.find_element_by_id('id_new_reminder_snooze')
-		reminder_snooze.send_keys('10')
+		reminder_snooze.send_keys('10\n')
 
 		# Finally, the reminder is given a repeat of 'T' meaning that the reminder is only valid for today
 		# versus multi-day reminders
 		reminder_repeat = self.browser.find_element_by_id('id_new_reminder_repeat')
-		reminder_repeat.send_keys('T\n')
+		reminder_repeat.send_keys('T')
+		reminder_repeat.send_keys(Keys.ENTER)
 
 		# He then clicks "Save" and the page is updated to display the new reminder as a button.
 		# The button reads the reminder title "Buy milk"
 		#import time; time.sleep(10)
 		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
-		self.assertContains('Buy milk', reminder_btn.text)
+		self.assertEqual('Buy milk', reminder_btn.text)
 
 		# Clicking on the button expands the reminder that was created above
 		reminder_btn.click()

@@ -5,15 +5,17 @@
     	href="#id_new_reminder_panel">Create a new reminder!</button>
         <div id="id_new_reminder_panel" class="panel-collapse collapse">
         	<div class="panel-body">
-	        	<form method='POST' id="id_new_reminder_form">
+                <form method="POST">
 	        		<input name="reminder_title" id="id_new_reminder_title" placeholder="Enter a reminder" />
 	        		<input name="reminder_alarm" id="id_new_reminder_alarm" placeholder="MM/DD/YYYY" />
 	        		<input name="reminder_snooze" id="id_new_reminder_snooze" placeholder="Enter snooze" />
 	        		<input name="reminder_repeat" id="id_new_reminder_repeat" placeholder="Enter repeat" />
-	        	</form>
+                    {% csrf_token %}
+                </form>
+
+                
         	</div>
         </div>
     </div>
+    <button id="id_reminder_btn" type="button" class="btn"></button>
 </div>
-
-<button id="id_reminder_btn"></button>
