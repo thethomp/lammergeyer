@@ -2,8 +2,10 @@ from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
+from django.utils.html import escape
 
 from reminders.views import home_page
+from functional_tests.base import TESTDATA
 
 class HomePageTest(TestCase):
 
@@ -22,14 +24,14 @@ class HomePageTest(TestCase):
 	def test_home_page_can_save_a_POST_request(self):
 		request = HttpRequest()
 		request.method = 'POST'
-		request.POST['reminder_title'] = 'Buy milk'
-		request.POST['reminder_alarm'] = '6/23/2015'
-		request.POST['reminder_snooze'] = '10'
-		request.POST['reminder_repeat'] = 'T'
+		request.POST = TESTDATA
 
 		response = home_page(request)
 		
 		self.assertIn('Buy milk', response.content)
-		self.assertIn('6/23/2015', response.content)
-		self.assertIn('10', response.content)
-		self.assertIn('T', response.content)
+		expected_html = render_to_string(
+			'reminders/home.html',
+			TESTDATA
+		)
+
+		self.assertEqual(expected_html, response.content.decode())

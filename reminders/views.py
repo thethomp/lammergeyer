@@ -109,6 +109,12 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
-	if request.method == 'POST':
-		return HttpResponse(request.POST.itervalues())
-	return render(request, 'reminders/home.html')
+	#return render(request, 'reminders/home.html', {
+	#	'new_reminder_title': request.POST.get('reminder_title', '')
+	#})
+	return render(request, 'reminders/home.html', {
+		'reminder_title': request.POST.get('reminder_title', ''),
+		'reminder_alarm': request.POST.get('reminder_alarm', ''),
+		'reminder_snooze': request.POST.get('reminder_snooze', ''),
+		'reminder_repeat': request.POST.get('reminder_repeat', ''),
+	})

@@ -1,5 +1,11 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+TESTDATA = {
+'reminder_title' : 'Buy milk', 
+'reminder_alarm': '06/23/2015', 
+'reminder_snooze': '10', 
+'reminder_repeat': 'T'
+}
 
 class FunctionalTest(StaticLiveServerTestCase):
 
