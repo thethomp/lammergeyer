@@ -1,7 +1,7 @@
 import unittest
 
 from .base import FunctionalTest
-from .base import TESTDATA
+from .base import REMINDER_ONE, REMINDER_TWO
 
 from unittest import skip
 from selenium import webdriver
@@ -58,24 +58,15 @@ class NewVisitorTest(FunctionalTest):
 		self.assertEqual(reminder_btn_text.get_attribute('aria-expanded'), 'false')
 
 	def test_new_user_can_create_and_display_a_new_reminder(self):
-		# Billy is ready to create a new reminder so he expands the new reminder panel
+		# Billy lands on the home page
 		self.browser.get(self.server_url)
-		#self.browser.find_element_by_id('id_new_reminder_btn').click()
-		self.create_new_reminder(TESTDATA)
-		# Billy gives his reminder a title,
-		#inputbox = self.browser.find_element_by_id('id_new_title')
-		#inputbox.send_keys('Our very first reminder!')
-		# a date time,
-		#inputbox = self.browser.find_element_by_id('id_new_alarm')
-		#inputbox.send_keys('Remind me in 1 hour')
-		# a snooze duration, 
-		#inputbox = self.browser.find_element_by_id('id_new_snooze')
-		#inputbox.send_keys('10 more minutes!')
-		# and finally how often the reminder repeats
-		#inputbox = self.browser.find_element_by_id('id_new_repeat')
-		#inputbox.send_keys('T')
-		# He then submits the form by clicking the Create button
-		self.browser.find_element_by_id('id_new_button').click()
+		
+		# Billy is ready to create a new reminder so he expands the new reminder panel.
+		# Billy gives his reminder a title, a date time, a snooze duration, 
+		# and finally how often the reminder repeats. He then submits the form 
+		# by clicking the Create button
+		self.create_new_reminder(REMINDER_ONE)
+		self.browser.find_element_by_id('id_create_button').click()
 
 		# After the form has been submitted, the reminder title is seen as a button in the table below
 		table = self.browser.find_element_by_id('id_reminder_list')
@@ -90,9 +81,31 @@ class NewVisitorTest(FunctionalTest):
 
 		
 		reminders = table.find_elements_by_tag_name('input')
-		for value in TESTDATA.itervalues():
+		for value in REMINDER_ONE.itervalues():
+			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
+
+		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button
+		# and creates a second reminder
+		self.create_new_reminder(REMINDER_TWO)
+		self.browser.find_element_by_id('id_create_button').click()
+
+		# He then checks the table below for reminder one
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
+		reminder_btn.click()
+		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
+
+		table = self.browser.find_element_by_id('id_reminder_list')
+		reminders = table.find_elements_by_tag_name('input')
+
+		for value in REMINDER_ONE.itervalues():
+			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
+
+		# and also sees reminder two
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
+		reminder_btn.click()
+		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
+
+		for value in REMINDER_TWO.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
 
 		self.fail('Finish me')
-
-		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button

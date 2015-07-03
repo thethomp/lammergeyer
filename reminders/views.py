@@ -5,7 +5,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Reminder, UserProfile
+from .models import Reminder
 from django.contrib.auth.models import User
 # Create your views here.
 

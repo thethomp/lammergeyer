@@ -7,13 +7,13 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('reminders', '0004_reminder_snooze'),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Reminder',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-            ],
+        migrations.AddField(
+            model_name='reminder',
+            name='repeat',
+            field=models.FloatField(default=300),
         ),
     ]
