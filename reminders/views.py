@@ -1,12 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from reminders.forms import UserForm, UserProfileForm
 from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Reminder
 from django.contrib.auth.models import User
+import datetime
+
+from .models import Reminder
+from reminders.forms import UserForm, UserProfileForm
+import reminders.timezone_object as tzobj
 # Create your views here.
 
 @login_required
@@ -109,12 +112,16 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
-	#return render(request, 'reminders/home.html', {
-	#	'new_reminder_title': request.POST.get('reminder_title', '')
-	#})
-	return render(request, 'reminders/home.html', {
-		'reminder_title': request.POST.get('reminder_title', ''),
-		'reminder_alarm': request.POST.get('reminder_alarm', ''),
-		'reminder_snooze': request.POST.get('reminder_snooze', ''),
-		'reminder_repeat': request.POST.get('reminder_repeat', ''),
-	})
+	if request.method == 'POST':
+		date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
+		utc = tzobj.UTC()	
+		reminder = Reminder.objects.create(
+			title=request.POST['reminder_title'],
+			alarm=datetime.datetime(date[0], date[1], date[2], tzinfo=utc),
+			snooze=request.POST['reminder_snooze'],
+			repeat=request.POST['reminder_repeat']
+		)
+		return redirect('/')
+
+	reminders = Reminder.objects.all()
+	return render(request, 'reminders/home.html', {'reminders': reminders})

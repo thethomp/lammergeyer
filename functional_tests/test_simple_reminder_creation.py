@@ -24,7 +24,7 @@ class NewVisitorTest(FunctionalTest):
 
 	"""Functional Tests"""
 
-	@unittest.skip('skip for now')
+	
 	def test_new_user_lands_on_home_page_and_clicks_to_see_reminder_form(self):
 		# Billy lands on the home page and sees the web service title.
 		self.browser.get(self.server_url)
@@ -47,10 +47,11 @@ class NewVisitorTest(FunctionalTest):
 
 		# In the expanded content, Billy sees input fields for reminder title, reminder time, 
 		# reminder snooze, and reminder repeat options
-		form = self.browser.find_element_by_id('id_new_reminder_form')
-		placeholders = [input.get_attribute('placeholder') for input in form.find_elements_by_tag_name('input')]
+		panel = self.browser.find_element_by_id('id_new_reminder_panel')
+		placeholders = [input.get_attribute('placeholder') for input in panel.find_elements_by_tag_name('input')]
 		expected_placeholders = ['Enter a reminder', 'MM/DD/YYYY', 'Enter snooze', 'Enter repeat']
-		self.assertEqual(placeholders, expected_placeholders)
+		for placeholder in expected_placeholders:
+			self.assertIn(placeholder, placeholders)
 
 		# Billy is not ready to add a reminder so he collapses the form
 		reminder_btn_text = self.browser.find_element_by_id('id_new_reminder_btn')
@@ -75,24 +76,28 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy clicks the newly created reminder button in the table below. He sees that
 		# the reminder expands and contains all the data entered above
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
 		reminder_btn.click()
 		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
-
 		
 		reminders = table.find_elements_by_tag_name('input')
 		for value in REMINDER_ONE.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
+
+		# Billy collpases the first reminder
+		reminder_btn.click()
+		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'false')
 
 		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button
 		# and creates a second reminder
 		self.create_new_reminder(REMINDER_TWO)
 		self.browser.find_element_by_id('id_create_button').click()
 
-		# He then checks the table below for reminder one
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
+		# He then checks the table below for reminder one and confirms the contents
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
 		reminder_btn.click()
 		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
+		reminder_btn.click()
 
 		table = self.browser.find_element_by_id('id_reminder_list')
 		reminders = table.find_elements_by_tag_name('input')
@@ -100,8 +105,12 @@ class NewVisitorTest(FunctionalTest):
 		for value in REMINDER_ONE.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
 
-		# and also sees reminder two
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn')
+		# He collapses reminder one.
+		reminder_btn.click()
+		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'false')
+
+		# Billy now expands reminder two and confirms the contents
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_2')
 		reminder_btn.click()
 		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
 

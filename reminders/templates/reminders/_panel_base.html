@@ -23,25 +23,31 @@
 </div>
 
 <div class="panel-group" id="id_reminder_list">
-        <div class="panel panel-default">
-            <button id="id_reminder_btn" type="button" class="btn btn-danger btn-block"
-            data-toggle="collapse" data-parent="#id_reminder_list"
-            href="#id_reminder_panel">1: {{ reminder_title }}</button>
-            <div id="id_reminder_panel" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <form class="horizontal-form" role="form" method="POST">
-                        <div class="form-group">
-                            <input name="reminder_title" id="id_title" value="{{ reminder_title }}" />
-                            <input name="reminder_alarm" id="id_alarm" value="{{ reminder_alarm}}" />
-                            <input name="reminder_snooze" id="id_snooze" value="{{ reminder_snooze}}" />
-                            <input name="reminder_repeat" id="id_repeat" value="{{ reminder_repeat}}" />
-                            {% csrf_token %}
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-default" id="id_new_button">Update</button>
-                        </div>
-                    </form>
+    {% for reminder in reminders %}
+            <div class="panel panel-default">
+                <button id="id_reminder_btn_{{forloop.counter}}" type="button" class="btn btn-danger btn-block"
+                data-toggle="collapse" data-parent="#id_reminder_list"
+                href="#id_reminder_panel">1: {{ reminder.title }}</button>
+                <div id="id_reminder_panel" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <form class="horizontal-form" role="form" method="POST">
+                            <div class="form-group">
+                                <input name="reminder_title" id="id_title" 
+                                value="{{ reminder.title }}" />
+                                <input name="reminder_alarm" id="id_alarm" 
+                                value="{{ reminder.alarm|date:'Y-m-d' }}" />
+                                <input name="reminder_snooze" id="id_snooze" 
+                                value="{{ reminder.snooze }}" />
+                                <input name="reminder_repeat" id="id_repeat" 
+                                value="{{ reminder.repeat }}" />
+                                {% csrf_token %}
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-default" id="id_new_button">Update</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endfor %}
 </div>

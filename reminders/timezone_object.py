@@ -1,6 +1,6 @@
 from datetime import tzinfo, timedelta
 
-ZERO = timedelta(0)
+ZERO = timedelta(hours=-8)
 
 class UTC(tzinfo):
 	def utcoffset(self, dt):
