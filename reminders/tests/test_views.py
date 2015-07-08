@@ -8,7 +8,7 @@ from django.utils.html import escape
 from django.utils import timezone
 
 from reminders.views import home_page
-from reminders.models import Reminder
+from reminders.models import Reminder, List
 from functional_tests.base import REMINDER_ONE
 import reminders.timezone_object as tzobj
 
@@ -39,8 +39,6 @@ class NewReminderListTest( TestCase):
 			data=REMINDER_ONE
 		)
 		self.assertRedirects(response, '/reminders/the-only-reminder-list-in-the-world/')
-		#self.assertEqual(response.status_code, 302)
-		#self.assertEqual(response['location'], '/reminders/the-only-reminder-list-in-the-world/')
 
 	def test_home_page_can_save_a_POST_request(self):
 		self.client.post(
@@ -56,17 +54,20 @@ class ReminderViewTest(TestCase):
 	def test_displays_multiple_reminders(self):
 		utc = tzobj.UTC()
 		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		list_ = List.objects.create()
 		Reminder.objects.create(
 			title='Buy milk',
 			alarm=date,
 			snooze=5,
-			repeat=10
+			repeat=10,
+			list=list_
 		)
 		Reminder.objects.create(
 			title='Buy beer',
 			alarm=date,
 			snooze=5,
-			repeat=10
+			repeat=10,
+			list=list_
 		)
 
 		response = self.client.get('/reminders/the-only-reminder-list-in-the-world/')
