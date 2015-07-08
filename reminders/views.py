@@ -121,7 +121,9 @@ def home_page(request):
 			snooze=request.POST['reminder_snooze'],
 			repeat=request.POST['reminder_repeat']
 		)
-		return redirect('/')
+		return redirect('/reminders/the-only-reminder-list-in-the-world/')
+	return render(request, 'reminders/home.html')
 
+def view_reminders(request):
 	reminders = Reminder.objects.all()
-	return render(request, 'reminders/home.html', {'reminders': reminders})
+	return render(request, 'reminders/reminder_list.html', {'reminders': reminders})

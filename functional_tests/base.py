@@ -12,6 +12,12 @@ REMINDER_TWO = {
 	'reminder_snooze': '15.0', 
 	'reminder_repeat': '36.0'	
 }
+REMINDER_THREE = {
+	'reminder_title' : 'Meeting at 8 am', 
+	'reminder_alarm': '2015-06-23', 
+	'reminder_snooze': '15.0', 
+	'reminder_repeat': '36.0'	
+}
 
 class FunctionalTest(StaticLiveServerTestCase):
 
@@ -21,7 +27,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 		cls.server_url = cls.live_server_url
 
 	@classmethod
-	def teadDownClass(cls):
+	def tearDownClass(cls):
 		super(FunctionalTest, cls).tearDownClass()
 
 	def setUp(self):

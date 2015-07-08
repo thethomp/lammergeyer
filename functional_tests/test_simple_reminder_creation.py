@@ -1,7 +1,7 @@
 import unittest
 
 from .base import FunctionalTest
-from .base import REMINDER_ONE, REMINDER_TWO
+from .base import REMINDER_ONE, REMINDER_TWO, REMINDER_THREE
 
 from unittest import skip
 from selenium import webdriver
@@ -54,9 +54,9 @@ class NewVisitorTest(FunctionalTest):
 			self.assertIn(placeholder, placeholders)
 
 		# Billy is not ready to add a reminder so he collapses the form
-		reminder_btn_text = self.browser.find_element_by_id('id_new_reminder_btn')
-		reminder_btn_text.click()
-		self.assertEqual(reminder_btn_text.get_attribute('aria-expanded'), 'false')
+		new_reminder_btn = self.browser.find_element_by_id('id_new_reminder_btn')
+		new_reminder_btn.click()
+		self.assertEqual(new_reminder_btn.get_attribute('aria-expanded'), 'false')
 
 	def test_new_user_can_create_and_display_a_new_reminder(self):
 		# Billy lands on the home page
@@ -65,9 +65,12 @@ class NewVisitorTest(FunctionalTest):
 		# Billy is ready to create a new reminder so he expands the new reminder panel.
 		# Billy gives his reminder a title, a date time, a snooze duration, 
 		# and finally how often the reminder repeats. He then submits the form 
-		# by clicking the Create button
+		# by clicking the Create button. Upon clicking "Create" Billy is taken to a new url
+		# where his reminder shows up in the table
 		self.create_new_reminder(REMINDER_ONE)
 		self.browser.find_element_by_id('id_create_button').click()
+		billy_first_list_url = self.browser.current_url
+		self.assertRegexpMatches(billy_first_list_url, '/reminders/.+')
 
 		# After the form has been submitted, the reminder title is seen as a button in the table below
 		table = self.browser.find_element_by_id('id_reminder_list')
@@ -84,30 +87,18 @@ class NewVisitorTest(FunctionalTest):
 		for value in REMINDER_ONE.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
 
-		# Billy collpases the first reminder
-		reminder_btn.click()
-		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'false')
-
 		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button
 		# and creates a second reminder
 		self.create_new_reminder(REMINDER_TWO)
 		self.browser.find_element_by_id('id_create_button').click()
 
 		# He then checks the table below for reminder one and confirms the contents
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
-		reminder_btn.click()
-		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
-		reminder_btn.click()
 
 		table = self.browser.find_element_by_id('id_reminder_list')
 		reminders = table.find_elements_by_tag_name('input')
 
 		for value in REMINDER_ONE.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
-
-		# He collapses reminder one.
-		reminder_btn.click()
-		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'false')
 
 		# Billy now expands reminder two and confirms the contents
 		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_2')
@@ -116,5 +107,38 @@ class NewVisitorTest(FunctionalTest):
 
 		for value in REMINDER_TWO.itervalues():
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
+
+		# Billy wants to create another list of reminders for work related scenarios
+
+		## Use new browser session to make sure that no information 
+		## from the grocery reminder list is coming through from cookies
+		self.browser.quit()
+		self.browser = webdriver.Firefox()
+
+		# Billy visits the home page and there is no trace of his previous reminders
+		self.browser.get(self.live_server_url)
+		page_text = self.browser.find_element_by_tag_name('body').text
+		for value in REMINDER_ONE.itervalues():
+			self.assertNotIn(value, page_text)
+		for value in REMINDER_TWO.itervalues():
+			self.assertNotIn(value, page_text)
+
+		# Billy starts his second list of reminders
+		self.create_new_reminder(REMINDER_THREE)
+		self.browser.find_element_by_id('id_create_button').click()
+
+		# Billy's second list is assigned a new url
+		billy_second_list_url = self.browser.current_url
+		self.assertRegexpMatches(billy_second_list_url, '/reminders/.+')
+		self.assertNotEqual(billy_first_list_url, billy_second_list_url)
+
+		# The old list is not there and the new reminder shows up on a new list
+		page_text = self.browser.find_elements_by_tag_name('body').text
+		for value in REMINDER_ONE.itervalues():
+			self.assertNotIn(value, page_text)
+		for value in REMINDER_TWO.itervalues():
+			self.assertNotIn(value, page_text)
+		for value in REMINDER_THREE.itervalues():
+			self.asserttIn(value, page_text)
 
 		self.fail('Finish me')

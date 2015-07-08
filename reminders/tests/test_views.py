@@ -45,14 +45,16 @@ class HomePageTest(TestCase):
 		response = home_page(request)
 
 		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/')
+		self.assertEqual(response['location'], '/reminders/the-only-reminder-list-in-the-world/')
 
 	def test_home_page_only_saves_reminders_when_necessary(self):
 		request = HttpRequest()
 		home_page(request)
 		self.assertEqual(Reminder.objects.count(), 0)
 
-	def test_home_page_displays_multiple_reminders(self):
+class ReminderViewTest(TestCase):
+
+	def test_displays_multiple_reminders(self):
 		utc = tzobj.UTC()
 		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
 		Reminder.objects.create(
@@ -68,8 +70,11 @@ class HomePageTest(TestCase):
 			repeat=10
 		)
 
-		request = HttpRequest()
-		response = home_page(request)
+		response = self.client.get('/reminders/the-only-reminder-list-in-the-world/')
 
-		self.assertIn('Buy milk', response.content.decode())
-		self.assertIn('Buy beer', response.content.decode())
+		self.assertContains(response, 'Buy milk')
+		self.assertContains(response, 'Buy beer')
+
+	def test_uses_reminder_list_template(self):
+		response = self.client.get('/reminders/the-only-reminder-list-in-the-world/')
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
