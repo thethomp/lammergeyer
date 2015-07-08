@@ -112,18 +112,19 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
-	if request.method == 'POST':
-		date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
-		utc = tzobj.UTC()	
-		reminder = Reminder.objects.create(
-			title=request.POST['reminder_title'],
-			alarm=datetime.datetime(date[0], date[1], date[2], tzinfo=utc),
-			snooze=request.POST['reminder_snooze'],
-			repeat=request.POST['reminder_repeat']
-		)
-		return redirect('/reminders/the-only-reminder-list-in-the-world/')
 	return render(request, 'reminders/home.html')
 
 def view_reminders(request):
 	reminders = Reminder.objects.all()
 	return render(request, 'reminders/reminder_list.html', {'reminders': reminders})
+
+def new_reminder_list(request):
+	date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
+	utc = tzobj.UTC()	
+	reminder = Reminder.objects.create(
+		title=request.POST['reminder_title'],
+		alarm=datetime.datetime(date[0], date[1], date[2], tzinfo=utc),
+		snooze=request.POST['reminder_snooze'],
+		repeat=request.POST['reminder_repeat']
+	)
+	return redirect('/reminders/the-only-reminder-list-in-the-world/')

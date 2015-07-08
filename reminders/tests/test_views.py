@@ -26,31 +26,30 @@ class HomePageTest(TestCase):
 
 		self.assertEqual(response.content, expected_html)
 
-	def test_home_page_can_save_a_POST_request(self):
-		request = HttpRequest()
-		request.method = 'POST'
-		request.POST = REMINDER_ONE
-
-		response = home_page(request)
-
-		self.assertEqual(Reminder.objects.count(), 1)
-		new_item = Reminder.objects.first()
-		self.assertEqual(new_item.title, 'Buy milk')
-
-	def test_home_page_redirects_after_POST(self):
-		request = HttpRequest()
-		request.method = 'POST'
-		request.POST = REMINDER_ONE
-
-		response = home_page(request)
-
-		self.assertEqual(response.status_code, 302)
-		self.assertEqual(response['location'], '/reminders/the-only-reminder-list-in-the-world/')
-
 	def test_home_page_only_saves_reminders_when_necessary(self):
 		request = HttpRequest()
 		home_page(request)
 		self.assertEqual(Reminder.objects.count(), 0)
+
+class NewReminderListTest( TestCase):
+
+	def test_home_page_redirects_after_POST(self):
+		response = self.client.post(
+			'/reminders/new',
+			data=REMINDER_ONE
+		)
+		self.assertRedirects(response, '/reminders/the-only-reminder-list-in-the-world/')
+		#self.assertEqual(response.status_code, 302)
+		#self.assertEqual(response['location'], '/reminders/the-only-reminder-list-in-the-world/')
+
+	def test_home_page_can_save_a_POST_request(self):
+		self.client.post(
+			'/reminders/new',
+			data=REMINDER_ONE
+		)
+		self.assertEqual(Reminder.objects.count(), 1)
+		new_item = Reminder.objects.first()
+		self.assertEqual(new_item.title, 'Buy milk')
 
 class ReminderViewTest(TestCase):
 

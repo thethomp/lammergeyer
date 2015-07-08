@@ -7,4 +7,5 @@ urlpatterns = [
 	#url(r'^reminders/', include('reminders.urls')),
 	url(r'^$', views.home_page, name='home'),
 	url(r'^reminders/the-only-reminder-list-in-the-world/$', views.view_reminders, name='view_reminders'),
+	url(r'^reminders/new$', views.new_reminder_list, name='new_reminder_list')
 ]
