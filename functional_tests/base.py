@@ -2,7 +2,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 REMINDER_ONE = {
 	'reminder_title' : 'Buy milk', 
-	'reminder_alarm': '2015-06-23', 
+	'reminder_alarm': '2015-06-22', 
 	'reminder_snooze': '10.0', 
 	'reminder_repeat': '24.0'
 }
@@ -14,9 +14,9 @@ REMINDER_TWO = {
 }
 REMINDER_THREE = {
 	'reminder_title' : 'Meeting at 8 am', 
-	'reminder_alarm': '2015-06-23', 
-	'reminder_snooze': '15.0', 
-	'reminder_repeat': '36.0'	
+	'reminder_alarm': '2015-06-25', 
+	'reminder_snooze': '20.0', 
+	'reminder_repeat': '48.0'	
 }
 
 class FunctionalTest(StaticLiveServerTestCase):

@@ -109,19 +109,20 @@ class NewVisitorTest(FunctionalTest):
 			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
 
 		# Billy wants to create another list of reminders for work related scenarios
-
 		## Use new browser session to make sure that no information 
 		## from the grocery reminder list is coming through from cookies
 		self.browser.quit()
 		self.browser = webdriver.Firefox()
+		self.browser.implicitly_wait(5)
 
 		# Billy visits the home page and there is no trace of his previous reminders
 		self.browser.get(self.live_server_url)
-		page_text = self.browser.find_element_by_tag_name('body').text
+		table = self.browser.find_element_by_id('id_reminder_list')
+		reminders = table.find_elements_by_tag_name('input')
 		for value in REMINDER_ONE.itervalues():
-			self.assertNotIn(value, page_text)
+			self.assertNotIn(value, [reminder.get_attribute('value') for reminder in reminders])
 		for value in REMINDER_TWO.itervalues():
-			self.assertNotIn(value, page_text)
+			self.assertNotIn(value, [reminder.get_attribute('value') for reminder in reminders])
 
 		# Billy starts his second list of reminders
 		self.create_new_reminder(REMINDER_THREE)
@@ -129,16 +130,21 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy's second list is assigned a new url
 		billy_second_list_url = self.browser.current_url
+		
 		self.assertRegexpMatches(billy_second_list_url, '/reminders/.+')
 		self.assertNotEqual(billy_first_list_url, billy_second_list_url)
 
 		# The old list is not there and the new reminder shows up on a new list
-		page_text = self.browser.find_elements_by_tag_name('body').text
+		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
+		reminder_btn.click()
+		table = self.browser.find_element_by_id('id_reminder_list')
+		reminders = table.find_elements_by_tag_name('input')
+		page_text = self.browser.find_element_by_tag_name('body').text
 		for value in REMINDER_ONE.itervalues():
-			self.assertNotIn(value, page_text)
+			self.assertNotIn(value, [reminder.get_attribute('value') for reminder in reminders])
 		for value in REMINDER_TWO.itervalues():
-			self.assertNotIn(value, page_text)
+			self.assertNotIn(value, [reminder.get_attribute('value') for reminder in reminders])
 		for value in REMINDER_THREE.itervalues():
-			self.asserttIn(value, page_text)
-
-		self.fail('Finish me')
+			self.assertIn(value, [reminder.get_attribute('value') for reminder in reminders])
+		reminder_btn.click()
+		#self.fail('Finish me')

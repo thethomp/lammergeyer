@@ -33,14 +33,15 @@ class HomePageTest(TestCase):
 
 class NewReminderListTest( TestCase):
 
-	def test_home_page_redirects_after_POST(self):
+	def test_redirects_after_POST(self):
 		response = self.client.post(
 			'/reminders/new',
 			data=REMINDER_ONE
 		)
-		self.assertRedirects(response, '/reminders/the-only-reminder-list-in-the-world/')
+		new_list  = List.objects.first()
+		self.assertRedirects(response, '/reminders/%d/' % (new_list.id,))
 
-	def test_home_page_can_save_a_POST_request(self):
+	def test_can_save_a_POST_request(self):
 		self.client.post(
 			'/reminders/new',
 			data=REMINDER_ONE
@@ -49,32 +50,80 @@ class NewReminderListTest( TestCase):
 		new_item = Reminder.objects.first()
 		self.assertEqual(new_item.title, 'Buy milk')
 
+	def test_can_save_a_POST_request_to_an_existing_list(self):
+		correct_list = List.objects.create()
+		other_list = List.objects.create()
+
+		self.client.post(
+			'/reminders/%d/add_reminder' % (correct_list.id,),
+			data=REMINDER_ONE
+		)
+
+		self.assertEqual(Reminder.objects.count(), 1)
+		new_item = Reminder.objects.first()
+		self.assertEqual(new_item.title, 'Buy milk')
+		self.assertEqual(new_item.list, correct_list)
+
+	def test_redirects_to_list_view(self):
+		correct_list = List.objects.create()
+		other_list = List.objects.create()
+
+		response = self.client.post(
+			'/reminders/%d/add_reminder' % (correct_list.id,),
+			data=REMINDER_ONE
+		)
+
+		self.assertRedirects(response, '/reminders/%d/' % (correct_list.id,))
+
+	def test_passes_correct_list_to_template(self):
+		other_list = List.objects.create()
+		correct_list = List.objects.create()
+		response = self.client.get('/reminders/%d/' % (correct_list.id,))
+		self.assertEqual(response.context['list'], correct_list)
+
 class ReminderViewTest(TestCase):
 
-	def test_displays_multiple_reminders(self):
+	def test_displays_only_reminders_for_that_list(self):
 		utc = tzobj.UTC()
 		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
-		list_ = List.objects.create()
+		correct_list = List.objects.create()
 		Reminder.objects.create(
 			title='Buy milk',
 			alarm=date,
 			snooze=5,
 			repeat=10,
-			list=list_
+			list=correct_list
 		)
 		Reminder.objects.create(
 			title='Buy beer',
 			alarm=date,
 			snooze=5,
 			repeat=10,
-			list=list_
+			list=correct_list
 		)
-
-		response = self.client.get('/reminders/the-only-reminder-list-in-the-world/')
+		other_list = List.objects.create()
+		Reminder.objects.create(
+			title='Buy milkshakes',
+			alarm=date,
+			snooze=5,
+			repeat=10,
+			list=other_list
+		)
+		Reminder.objects.create(
+			title='Buy beerfloats',
+			alarm=date,
+			snooze=5,
+			repeat=10,
+			list=other_list
+		)
+		response = self.client.get('/reminders/%d/' % (correct_list.id,))
 
 		self.assertContains(response, 'Buy milk')
 		self.assertContains(response, 'Buy beer')
+		self.assertNotContains(response, 'Buy milkshakes')
+		self.assertNotContains(response, 'Buy beerfloats')
 
 	def test_uses_reminder_list_template(self):
-		response = self.client.get('/reminders/the-only-reminder-list-in-the-world/')
+		list_  = List.objects.create()
+		response = self.client.get('/reminders/%d/' % (list_.id,))
 		self.assertTemplateUsed(response, 'reminders/reminder_list.html')

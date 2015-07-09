@@ -114,9 +114,9 @@ def index( request ):
 def home_page(request):
 	return render(request, 'reminders/home.html')
 
-def view_reminders(request):
-	reminders = Reminder.objects.all()
-	return render(request, 'reminders/reminder_list.html', {'reminders': reminders})
+def view_reminders(request, list_id):
+	list_ = List.objects.get(id=list_id)
+	return render(request, 'reminders/reminder_list.html', {'list': list_})
 
 def new_reminder_list(request):
 	date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
@@ -129,4 +129,17 @@ def new_reminder_list(request):
 		repeat=request.POST['reminder_repeat'],
 		list=list_
 	)
-	return redirect('/reminders/the-only-reminder-list-in-the-world/')
+	return redirect('/reminders/%d/' % (list_.id,))
+
+def add_reminder(request, list_id):
+	date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
+	utc = tzobj.UTC()
+	list_ = List.objects.get(id=list_id)
+	Reminder.objects.create(
+		title=request.POST['reminder_title'],
+		alarm=datetime.datetime(date[0], date[1], date[2], tzinfo=utc),
+		snooze=request.POST['reminder_snooze'],
+		repeat=request.POST['reminder_repeat'],
+		list=list_
+	)
+	return redirect('/reminders/%d/' % (list_.id,))
