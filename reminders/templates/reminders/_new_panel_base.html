@@ -25,8 +25,8 @@
 <div class="panel-group" id="id_reminder_list">
     {% for reminder in reminders %}
             <div class="panel panel-default">
-                <button id="id_reminder_btn_{{forloop.counter}}" type="button" class="btn btn-danger btn-block"
-                data-toggle="collapse" data-parent="#id_reminder_list"
+                <button id="id_reminder_btn_{{forloop.counter}}" type="button" 
+                class="btn btn-danger btn-block" data-toggle="collapse" data-parent="#id_reminder_list"
                 href="#id_reminder_panel">{{forloop.counter}}: {{ reminder.title }}</button>
                 <div id="id_reminder_panel" class="panel-collapse collapse">
                     <div class="panel-body">
@@ -43,7 +43,7 @@
                                 {% csrf_token %}
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-default" id="id_new_button">Update</button>
+                                <button type="submit" class="btn btn-default" id="id_update_button">Update</button>
                             </div>
                         </form>
                     </div>

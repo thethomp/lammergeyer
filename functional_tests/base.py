@@ -1,5 +1,8 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+
+import sys
+
 REMINDER_ONE = {
 	'reminder_title' : 'Buy milk', 
 	'reminder_alarm': '2015-06-22', 
