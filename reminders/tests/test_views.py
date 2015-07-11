@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from reminders.views import home_page
 from reminders.models import Reminder, List
-from functional_tests.base import REMINDER_ONE
+from functional_tests.base import REMINDER_ONE, REMINDER_TWO
 import reminders.timezone_object as tzobj
 
 class HomePageTest(TestCase):
@@ -80,6 +80,38 @@ class NewReminderListTest( TestCase):
 		correct_list = List.objects.create()
 		response = self.client.get('/reminders/%d/' % (correct_list.id,))
 		self.assertEqual(response.context['list'], correct_list)
+
+	def test_save_a_POST_request_to_existing_reminder(self):
+		list_ = List.objects.create()
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		saved_reminder = Reminder.objects.create(
+			title='Buy milk',
+			alarm=date,
+			snooze=5,
+			repeat=10,
+			list=list_
+		)
+		edited_reminder = {}
+		for key, value in REMINDER_TWO.iteritems():
+			edited_reminder['%s_%s' % (key, saved_reminder.pk,)] = value
+		
+		self.client.post(
+			'/reminders/%d/edit_reminder/%d' % (list_.id, saved_reminder.pk),
+			data=edited_reminder
+		)
+
+		edited_reminder = Reminder.objects.get(pk=saved_reminder.pk)
+		self.assertEqual(edited_reminder, saved_reminder)
+		self.assertEqual(edited_reminder.title, 'Buy beer')
+		self.assertEqual(edited_reminder.alarm, datetime.datetime(2015, 6, 23, tzinfo=utc))
+		self.assertEqual(edited_reminder.snooze, 15.0)
+		self.assertEqual(edited_reminder.repeat, 36.0)
+		self.assertEqual(Reminder.objects.count(), 1)
+
+	def test_passes_correct_reminder_to_template(self):
+		list_ = List.objects.create()
+
 
 class ReminderViewTest(TestCase):
 

@@ -143,3 +143,15 @@ def add_reminder(request, list_id):
 		list=list_
 	)
 	return redirect('/reminders/%d/' % (list_.id,))
+
+def edit_reminder(request, list_id, reminder_pk):
+	date = [int(i) for i in request.POST.get('reminder_alarm_%s' % (reminder_pk,), '').split('-')]
+	utc = tzobj.UTC()
+	list_ = List.objects.get(id=list_id)
+	reminder = Reminder.objects.get(pk=reminder_pk)
+	reminder.title = request.POST['reminder_title_%s' % (reminder_pk,)]
+	reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
+	reminder.snooze = request.POST['reminder_snooze_%s' % (reminder_pk,)]
+	reminder.repeat = request.POST['reminder_repeat_%s' % (reminder_pk,)]
+	reminder.save()
+	return redirect('/reminders/%d/' % (list_.id,))

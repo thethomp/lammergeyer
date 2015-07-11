@@ -1,4 +1,5 @@
 import datetime
+import sys
 
 from django.test import TestCase
 from reminders.models import Reminder, List
@@ -47,3 +48,37 @@ class ListAndReminderModelTest(TestCase):
 		self.assertEqual(second_saved_reminder.snooze, 10)
 		self.assertEqual(second_saved_reminder.repeat, 240)
 		self.assertEqual(second_saved_reminder.list, list_)
+
+	def test_editing_existing_reminders(self):
+		list_ = List.objects.create()
+		utc = tzobj.UTC()
+		reminder_one = Reminder.objects.create(
+			title='Buy milk',
+			alarm=datetime.datetime(2015, 7, 2, 16, tzinfo=utc),
+			snooze=10,
+			repeat=20,
+			list=list_
+		)
+		reminder_two = Reminder.objects.create(
+			title='Buy beer',
+			alarm=datetime.datetime(2015, 8, 3, 16, tzinfo=utc),
+			snooze=11,
+			repeat=21,
+			list=list_
+		)
+		reminder_pk = reminder_two.pk
+		saved_reminder = Reminder.objects.get(pk=reminder_pk)
+		saved_reminder.title = 'Buy milk'
+		saved_reminder.alarm = datetime.datetime(2015, 7, 2, 16, tzinfo=utc)
+		saved_reminder.snooze = 10
+		saved_reminder.repeat = 240
+		saved_reminder.save()
+
+		self.assertEqual(saved_reminder, reminder_two)
+		self.assertEqual(Reminder.objects.count(), 2)
+		self.assertEqual(saved_reminder.title, 'Buy milk')
+		self.assertEqual(saved_reminder.alarm, datetime.datetime(2015, 7, 2, 16, tzinfo=utc))
+		self.assertEqual(saved_reminder.snooze, 10)
+		self.assertEqual(saved_reminder.repeat, 240)
+		self.assertEqual(saved_reminder.list, list_)
+		self.assertEqual(saved_reminder.pk, reminder_pk)
