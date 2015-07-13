@@ -146,20 +146,29 @@ class NewVisitorTest(FunctionalTest):
 			expected_conditions.element_to_be_clickable((By.ID, 'id_title'))
 		)
 
-		#import pdb; pdb.set_trace()
+		edited_reminder = {}
+		for key, value in REMINDER_TWO.iteritems():
+			edited_reminder['%s_%d' % (key, 1)] = value
+
 		reminder_panel = self.browser.find_element_by_id('id_reminder_panel')
 		inputs = reminder_panel.find_elements_by_tag_name('input')
 		for input in inputs:
 			text = input.get_attribute('name')
-			if text in REMINDER_TWO:
-				inputbox = input.clear()
-				inputbox = input.send_keys(REMINDER_TWO[text])
+			if text in edited_reminder:
+				input.clear()
+				input.send_keys(edited_reminder[text])
 
 		# He updates the reminder, and sees that the reminder has indeed changed, 
 		# and that there is no trace of his previous reminder
 		self.browser.find_element_by_id('id_update_button').click()
+		self.assertRegexpMatches(billy_url, '/reminders/.+')
+		element = wait.until(
+			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_list'))
+		)
 		reminders = self.get_all_reminder_values()
 		for value in REMINDER_ONE.itervalues():
 			self.assertNotIn(value, reminders)
 		for value in REMINDER_TWO.itervalues():
 			self.assertIn(value, reminders)
+
+		self.browser.find_element_by_id('id_reminder_btn_1').click()

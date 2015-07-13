@@ -92,14 +92,18 @@ class NewReminderListTest( TestCase):
 			repeat=10,
 			list=list_
 		)
+		self.assertEqual(Reminder.objects.count(), 1)
+
 		edited_reminder = {}
 		for key, value in REMINDER_TWO.iteritems():
-			edited_reminder['%s_%s' % (key, saved_reminder.pk,)] = value
-		
-		self.client.post(
-			'/reminders/%d/edit_reminder/%d' % (list_.id, saved_reminder.pk),
-			data=edited_reminder
+			edited_reminder['%s_%d' % (key, saved_reminder.pk,)] = value
+
+		response = self.client.post(
+			'/reminders/%d/edit_reminder/%d' % (list_.id, saved_reminder.pk,),
+			data=edited_reminder,
 		)
+		self.assertRedirects(response, '/reminders/%d/' % (list_.id,))
+		#import pdb; pdb.set_trace()
 
 		edited_reminder = Reminder.objects.get(pk=saved_reminder.pk)
 		self.assertEqual(edited_reminder, saved_reminder)
