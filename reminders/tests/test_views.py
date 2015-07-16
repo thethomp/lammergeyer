@@ -168,3 +168,22 @@ class ReminderViewTest(TestCase):
 		list_  = List.objects.create()
 		response = self.client.get('/reminders/%d/' % (list_.id,))
 		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
+
+	def test_validation_errors_appear_reminder_lists(self):
+		list_ = List.objects.create()
+		utc = tzobj.UTC()
+		Reminder.objects.create(
+			title='Buy beer',
+			alarm=datetime.datetime(2015, 8, 3, 16, tzinfo=utc),
+			snooze=11,
+			repeat=21,
+			list=list_
+		)
+		response = self.client.post(
+			'/reminders/%d/' % (list_.id),
+			data=EMPTY_REMINDER
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
+		expected_error = 'Reminders need titles!'
+		self.assertContains(response, expected_error)
