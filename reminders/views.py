@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 import datetime
 
 from .models import Reminder, List
@@ -119,16 +120,31 @@ def view_reminders(request, list_id):
 	return render(request, 'reminders/reminder_list.html', {'list': list_})
 
 def new_reminder_list(request):
-	date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
-	utc = tzobj.UTC()
 	list_ = List.objects.create()
-	reminder = Reminder.objects.create(
-		title=request.POST['reminder_title'],
-		alarm=datetime.datetime(date[0], date[1], date[2], tzinfo=utc),
-		snooze=request.POST['reminder_snooze'],
-		repeat=request.POST['reminder_repeat'],
-		list=list_
-	)
+	reminder = Reminder(title = request.POST['reminder_title'], list=list_)
+	utc = tzobj.UTC()
+	
+	try:
+		date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
+		reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
+	except ValueError:
+		pass
+	try:
+		reminder.snooze = float(request.POST['reminder_snooze'])
+	except ValueError:
+		pass
+	try:
+		reminder.repeat = float(request.POST['reminder_repeat'])
+	except ValueError:
+		pass
+	
+	try:
+		reminder.full_clean()
+		reminder.save()
+	except ValidationError:
+		list_.delete()
+		error = "Reminders need titles!"
+		return render(request, 'reminders/home.html', {"error": error})
 	return redirect('/reminders/%d/' % (list_.id,))
 
 def add_reminder(request, list_id):

@@ -15,16 +15,6 @@ from selenium.webdriver.common.keys import Keys
 class NewVisitorTest(FunctionalTest):
 
 	""" Utility Functions"""
-	def create_new_reminder(self, reminder):
-		self.browser.find_element_by_id('id_new_reminder_btn').click()
-		new_reminder_panel = self.browser.find_element_by_id('id_new_reminder_panel')
-		inputs = new_reminder_panel.find_elements_by_tag_name('input')
-		for input in inputs:
-			text = input.get_attribute('name')
-			if text in reminder:
-				inputbox = input.send_keys(reminder[text])
-		self.browser.find_element_by_id('id_create_button').click()
-
 	def get_all_reminder_values(self):
 		table = self.browser.find_element_by_id('id_reminder_list')
 		reminders = table.find_elements_by_tag_name('input')
@@ -42,7 +32,7 @@ class NewVisitorTest(FunctionalTest):
 		# and finally how often the reminder repeats. He then submits the form 
 		# by clicking the Create button. Upon clicking "Create" Billy is taken to a new url
 		# where his reminder shows up in the table
-		self.create_new_reminder(REMINDER_ONE)
+		self.create_or_edit_reminder(REMINDER_ONE, 'id_new_reminder_btn', 'id_create_button')
 		
 		billy_first_list_url = self.browser.current_url
 		self.assertRegexpMatches(billy_first_list_url, '/reminders/.+')
@@ -64,7 +54,7 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button
 		# and creates a second reminder
-		self.create_new_reminder(REMINDER_TWO)
+		self.create_or_edit_reminder(REMINDER_TWO, 'id_new_reminder_btn', 'id_create_button')
 
 		# He then checks the table below for reminder one and confirms the contents
 		reminders = self.get_all_reminder_values()
@@ -96,7 +86,7 @@ class NewVisitorTest(FunctionalTest):
 			self.assertNotIn(value, reminders)
 
 		# Billy starts his second list of reminders
-		self.create_new_reminder(REMINDER_THREE)
+		self.create_or_edit_reminder(REMINDER_THREE, 'id_new_reminder_btn', 'id_create_button')
 
 		# Billy's second list is assigned a new url
 		billy_second_list_url = self.browser.current_url

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from reminders.views import home_page
 from reminders.models import Reminder, List
-from functional_tests.base import REMINDER_ONE, REMINDER_TWO
+from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER
 import reminders.timezone_object as tzobj
 
 class HomePageTest(TestCase):
@@ -113,8 +113,17 @@ class NewReminderListTest( TestCase):
 		self.assertEqual(edited_reminder.repeat, 36.0)
 		self.assertEqual(Reminder.objects.count(), 1)
 
-	def test_passes_correct_reminder_to_template(self):
-		list_ = List.objects.create()
+	def test_validation_errors_are_sent_back_to_home_page_template(self):
+		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'reminders/home.html')
+		expected_error = "Reminders need titles!"
+		self.assertContains(response, expected_error)
+
+	def test_empty_reminders_are_not_saved(self):
+		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
+		self.assertEqual(List.objects.count(), 0)
+		self.assertEqual(Reminder.objects.count(), 0)
 
 
 class ReminderViewTest(TestCase):

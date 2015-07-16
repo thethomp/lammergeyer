@@ -2,6 +2,7 @@ import datetime
 import sys
 
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 from reminders.models import Reminder, List
 import reminders.timezone_object as tzobj
 
@@ -82,3 +83,10 @@ class ListAndReminderModelTest(TestCase):
 		self.assertEqual(saved_reminder.repeat, 240)
 		self.assertEqual(saved_reminder.list, list_)
 		self.assertEqual(saved_reminder.pk, reminder_pk)
+
+	def test_cannot_save_empty_reminders(self):
+		list_ = List.objects.create()
+		reminder = Reminder(title='', list=list_)
+		with self.assertRaises(ValidationError):
+			reminder.save()
+			reminder.full_clean()

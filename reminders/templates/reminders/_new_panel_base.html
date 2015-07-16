@@ -2,17 +2,22 @@
     <div class="panel panel-default">
     	<button id="id_new_reminder_btn" type="button" class="btn btn-danger btn-block" 
     	data-toggle="collapse" data-parent="#accordion" 
-    	href="#id_new_reminder_panel">Create a new reminder!</button>
-        <div id="id_new_reminder_panel" class="panel-collapse collapse">
+    	href="#id_new_reminder_btn_panel">Create a new reminder!</button>
+        <div id="id_new_reminder_btn_panel" class="panel-collapse collapse">
         	<div class="panel-body">
                 <form class="horizontal-form" role="form" method="POST" action="/reminders/new">
                     <div class="form-group">
-    	        		<input name="reminder_title" id="id_new_title" placeholder="Enter a reminder" />
-    	        		<input name="reminder_alarm" id="id_new_alarm" placeholder="MM/DD/YYYY" />
-    	        		<input name="reminder_snooze" id="id_new_snooze" placeholder="Enter snooze" />
-    	        		<input name="reminder_repeat" id="id_new_repeat" placeholder="Enter repeat" />
+    	        		<input name="reminder_title" id="id_title" placeholder="Enter a reminder" />
+    	        		<input name="reminder_alarm" id="id_alarm" placeholder="MM/DD/YYYY" />
+    	        		<input name="reminder_snooze" id="id_snooze" placeholder="Enter snooze" />
+    	        		<input name="reminder_repeat" id="id_repeat" placeholder="Enter repeat" />
                         {% csrf_token %}
                     </div>
+                    {% if error %}
+                        <div class="form-group has-error">
+                            <span class="help-block">{{ error }}</span>
+                       </div>
+                    {% endif %}
                     <div class="form-group">
                         <button type="submit" class="btn btn-default" id="id_create_button">Create</button>
                     </div>
