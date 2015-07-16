@@ -1,7 +1,7 @@
 import unittest
 
 from .base import FunctionalTest
-from .base import REMINDER_ONE
+from .base import REMINDER_ONE, EMPTY_REMINDER
 from unittest import skip
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -55,11 +55,7 @@ class ReminderValidationTest(FunctionalTest):
 		element = wait.until(
 			expected_conditions.element_to_be_clickable((By.ID, 'id_new_reminder_btn'))
 		) 
-		self.browser.find_element_by_id('id_new_reminder_btn').click()
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_create_button'))
-		) 
-		self.browser.find_element_by_id('id_create_button').click()
+		self.create_or_edit_reminder(EMPTY_REMINDER, 'id_new_reminder_btn', 'id_create_button')
 
 		# Consequently, he is redirected to the home page and sees error messages appear 
 		# above each field telling him they are required for reminder creation.
@@ -72,9 +68,14 @@ class ReminderValidationTest(FunctionalTest):
 		) 
 		error = self.browser.find_element_by_css_selector('.has-error')
 		self.assertEqual(error.text, 'Reminders need titles!')
+		#self.browser.find_element_by_id('id_new_reminder_btn').click()
+		#self.assertEqual(self.browser.find_element_by_id('id_new_reminder_btn').get_attribute('aria-expanded'), 
+		#	'false'
+		#)
+		self.safe_close_panel()
 
 		# Del properly fills out the reminder fields and a new reminder is created.
-		self.create_or_edit_reminder(REMINDER_ONE)
+		self.create_or_edit_reminder(REMINDER_ONE, 'id_new_reminder_btn', 'id_create_button')
 
 		# Del does not learn from his mistakes and attempts to create an empty reminder again!
 		self.browser.find_element_by_id('id_new_reminder_btn').click()

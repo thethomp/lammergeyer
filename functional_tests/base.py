@@ -7,22 +7,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 import sys
 
 REMINDER_ONE = {
-	'id_title' : 'Buy milk', 
+	'id_title': 'Buy milk', 
 	'id_alarm': '2015-06-22', 
 	'id_snooze': '10.0', 
 	'id_repeat': '24.0'
 }
 REMINDER_TWO = {
-	'id_title' : 'Buy beer', 
+	'id_title': 'Buy beer', 
 	'id_alarm': '2015-06-23', 
 	'id_snooze': '15.0', 
 	'id_repeat': '36.0'	
 }
 REMINDER_THREE = {
-	'id_title' : 'Meeting at 8 am', 
+	'id_title': 'Meeting at 8 am', 
 	'id_alarm': '2015-06-25', 
 	'id_snooze': '20.0', 
 	'id_repeat': '48.0'	
+}
+EMPTY_REMINDER = {
+	'id_title': '', 
+	'id_alarm': '', 
+	'id_snooze': '', 
+	'id_repeat': ''	
 }
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -51,7 +57,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 		to the collapsible form for a new reminder, or the collapsible form of an existing reminder.
 		The submit_button mirrors usage explained above but for submitting forms data in cases above.
 		"""
-		wait = WebDriverWait(self.browser, 10)
+		wait = WebDriverWait(self.browser, 20)
 		element = wait.until(
 			expected_conditions.element_to_be_clickable((By.ID, reminder_button))
 		)
@@ -75,3 +81,13 @@ class FunctionalTest(StaticLiveServerTestCase):
 			expected_conditions.element_to_be_clickable((By.ID, submit_button))
 		)
 		self.browser.find_element_by_id(submit_button).click()
+
+	def safe_close_panel(self):
+		wait = WebDriverWait(self.browser, 10)
+		element = wait.until(
+			expected_conditions.element_to_be_clickable((By.ID, 'id_new_reminder_btn'))
+		)
+		self.browser.find_element_by_id('id_new_reminder_btn').click()
+		element = wait.until(
+			expected_conditions.invisibility_of_element_located((By.ID, 'id_create_button'))
+		)

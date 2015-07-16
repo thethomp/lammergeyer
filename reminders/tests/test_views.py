@@ -31,8 +31,6 @@ class HomePageTest(TestCase):
 		home_page(request)
 		self.assertEqual(Reminder.objects.count(), 0)
 
-class NewReminderListTest( TestCase):
-
 	def test_redirects_after_POST(self):
 		response = self.client.post(
 			'/reminders/new',
@@ -50,12 +48,14 @@ class NewReminderListTest( TestCase):
 		new_item = Reminder.objects.first()
 		self.assertEqual(new_item.title, 'Buy milk')
 
+class ReminderViewTest(TestCase):
+
 	def test_can_save_a_POST_request_to_an_existing_list(self):
 		correct_list = List.objects.create()
 		other_list = List.objects.create()
 
 		self.client.post(
-			'/reminders/%d/add_reminder' % (correct_list.id,),
+			'/reminders/%d/' % (correct_list.id,),
 			data=REMINDER_ONE
 		)
 
@@ -64,12 +64,12 @@ class NewReminderListTest( TestCase):
 		self.assertEqual(new_item.title, 'Buy milk')
 		self.assertEqual(new_item.list, correct_list)
 
-	def test_redirects_to_list_view(self):
+	def test_POST_redirects_to_list_view(self):
 		correct_list = List.objects.create()
 		other_list = List.objects.create()
 
 		response = self.client.post(
-			'/reminders/%d/add_reminder' % (correct_list.id,),
+			'/reminders/%d/' % (correct_list.id,),
 			data=REMINDER_ONE
 		)
 
@@ -103,7 +103,6 @@ class NewReminderListTest( TestCase):
 			data=edited_reminder,
 		)
 		self.assertRedirects(response, '/reminders/%d/' % (list_.id,))
-		#import pdb; pdb.set_trace()
 
 		edited_reminder = Reminder.objects.get(pk=saved_reminder.pk)
 		self.assertEqual(edited_reminder, saved_reminder)
@@ -124,9 +123,6 @@ class NewReminderListTest( TestCase):
 		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
 		self.assertEqual(List.objects.count(), 0)
 		self.assertEqual(Reminder.objects.count(), 0)
-
-
-class ReminderViewTest(TestCase):
 
 	def test_displays_only_reminders_for_that_list(self):
 		utc = tzobj.UTC()
