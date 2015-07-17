@@ -5,7 +5,7 @@
     	href="#id_new_reminder_btn_panel">Create a new reminder!</button>
         <div id="id_new_reminder_btn_panel" class="panel-collapse collapse">
         	<div class="panel-body">
-                <form class="horizontal-form" role="form" method="POST" action="/reminders/new">
+                <form class="horizontal-form" role="form" method="POST" action={% url 'new_reminder_list' %}>
                     <div class="form-group">
     	        		<input name="reminder_title" id="id_title" placeholder="Enter a reminder" />
     	        		<input name="reminder_alarm" id="id_alarm" placeholder="MM/DD/YYYY" />

@@ -6,7 +6,7 @@
         <div id="id_new_reminder_btn_panel" class="panel-collapse collapse">
         	<div class="panel-body">
                 <form class="horizontal-form" role="form" method="POST" 
-                    action="/reminders/{{ list.id }}/">
+                    action={% url 'view_reminders' list.id %}>
                     <div class="form-group">
     	        		<input name="reminder_title" id="id_title" placeholder="Enter a reminder" />
     	        		<input name="reminder_alarm" id="id_alarm" placeholder="MM/DD/YYYY" />
@@ -37,7 +37,7 @@
                 <div id="id_reminder_btn_{{forloop.counter}}_panel" class="panel-collapse collapse">
                     <div class="panel-body">
                         <form class="horizontal-form" role="form" method="POST" 
-                            action="/reminders/{{ list.id }}/edit_reminder/{{ reminder.pk }}">
+                            action={% url 'edit_reminder' list.id reminder.pk %}>
                             <div class="form-group">
                                 <input name="reminder_title_{{ reminder.pk }}" id="id_title" 
                                 value="{{ reminder.title }}" />

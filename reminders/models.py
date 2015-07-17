@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.forms import ModelForm, RegexField
 from django.core.validators import RegexValidator
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 import reminders.timezone_object as tzobj
@@ -14,7 +15,9 @@ def now_minus_1():
 	return datetime.datetime.now(utc)-datetime.timedelta(days=1)
 
 class List(models.Model):
-	pass
+
+	def get_absolute_url(self):
+		return reverse('view_reminders', args=[self.id])
 
 class Reminder(models.Model):
 

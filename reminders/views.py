@@ -121,9 +121,8 @@ def view_reminders(request, list_id):
 
 	if request.method == 'POST':
 		reminder = Reminder(title = request.POST['reminder_title'], list=list_)
-		date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
 		utc = tzobj.UTC()
-		
+
 		try:
 			date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
 			reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
@@ -140,7 +139,7 @@ def view_reminders(request, list_id):
 		try:
 			reminder.full_clean()
 			reminder.save()
-			return redirect('/reminders/%d/' % (list_.id,))
+			return redirect(list_)
 		except:
 			error = 'Reminders need titles!'
 
@@ -172,7 +171,7 @@ def new_reminder_list(request):
 		list_.delete()
 		error = "Reminders need titles!"
 		return render(request, 'reminders/home.html', {"error": error})
-	return redirect('/reminders/%d/' % (list_.id,))
+	return redirect(list_)
 
 def edit_reminder(request, pk):
 	date = [int(i) for i in request.POST.get('reminder_alarm_%s' % (pk,), '').split('-')]
