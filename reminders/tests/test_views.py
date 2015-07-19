@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from reminders.views import home_page
 from reminders.models import Reminder, List
+from reminders.forms import ReminderForm
 from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER
 import reminders.timezone_object as tzobj
 
@@ -22,9 +23,17 @@ class HomePageTest(TestCase):
 		request = HttpRequest()
 		response = home_page(request)
 
-		expected_html = render_to_string('reminders/home.html')
+		expected_html = render_to_string('reminders/home.html', {'form': ReminderForm()})
 
-		self.assertEqual(response.content, expected_html)
+		self.assertEqual(response.content.decode(), expected_html)
+
+	def test_home_page_renders_home_template(self):
+		response = self.client.get('/')
+		self.assertTemplateUsed(response, 'reminders/home.html')
+
+	def test_home_page_uses_item_form(self):
+		response = self.client.get('/')
+		self.assertIsInstance(response.context['form'], ReminderForm)
 
 	def test_home_page_only_saves_reminders_when_necessary(self):
 		request = HttpRequest()

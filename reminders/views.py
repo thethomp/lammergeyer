@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 import datetime
 
 from .models import Reminder, List
-from reminders.forms import UserForm, UserProfileForm
+from reminders.forms import UserForm, UserProfileForm, ReminderForm
 import reminders.timezone_object as tzobj
 # Create your views here.
 
@@ -113,7 +113,7 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
-	return render(request, 'reminders/home.html')
+	return render(request, 'reminders/home.html', {'form': ReminderForm()})
 
 def view_reminders(request, list_id):
 	list_ = List.objects.get(id=list_id)

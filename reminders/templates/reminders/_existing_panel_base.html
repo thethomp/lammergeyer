@@ -8,10 +8,7 @@
                 <form class="horizontal-form" role="form" method="POST" 
                     action={% url 'view_reminders' list.id %}>
                     <div class="form-group">
-    	        		<input name="reminder_title" id="id_title" placeholder="Enter a reminder" />
-    	        		<input name="reminder_alarm" id="id_alarm" placeholder="MM/DD/YYYY" />
-    	        		<input name="reminder_snooze" id="id_snooze" placeholder="Enter snooze" />
-    	        		<input name="reminder_repeat" id="id_repeat" placeholder="Enter repeat" />
+    	        		{{ form.text }}
                         {% csrf_token %}
                         {% if error %}
                             <div class="form-group has-error">
