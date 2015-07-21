@@ -4,8 +4,12 @@
 
 {% block header_text %}Your Reminders{% endblock %}
 
-{% block content %}
-	{% include 'reminders/_existing_panel_base.html' %}
+{% block create %}
+	{% include 'reminders/_new_reminder_form.html' %}
+{% endblock %}
+
+{% block reminders %}
+	{% include 'reminders/_existing_reminder_form.html' %}
 {% endblock %}
 
 {% block javascript %}

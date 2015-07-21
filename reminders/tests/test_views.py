@@ -9,11 +9,12 @@ from django.utils import timezone
 
 from reminders.views import home_page
 from reminders.models import Reminder, List
-from reminders.forms import ReminderForm
+from reminders.forms import ReminderForm, EMPTY_REMINDER_TITLE_ERROR
 from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER
 import reminders.timezone_object as tzobj
 
 class HomePageTest(TestCase):
+	maxDiff = None
 
 	def test_root_url_resolves_to_home_page_view(self):
 		found = resolve('/')
@@ -25,7 +26,7 @@ class HomePageTest(TestCase):
 
 		expected_html = render_to_string('reminders/home.html', {'form': ReminderForm()})
 
-		self.assertEqual(response.content.decode(), expected_html)
+		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_home_page_renders_home_template(self):
 		response = self.client.get('/')
@@ -59,19 +60,17 @@ class HomePageTest(TestCase):
 
 class ReminderViewTest(TestCase):
 
-	def test_can_save_a_POST_request_to_an_existing_list(self):
-		correct_list = List.objects.create()
-		other_list = List.objects.create()
-
-		self.client.post(
-			'/reminders/%d/' % (correct_list.id,),
-			data=REMINDER_ONE
+	def post_invalid_input(self):
+		list_ = List.objects.create()
+		return self.client.post(
+			'/reminders/%d/' % (list_.id,),
+			data=EMPTY_REMINDER
 		)
 
-		self.assertEqual(Reminder.objects.count(), 1)
-		new_item = Reminder.objects.first()
-		self.assertEqual(new_item.title, 'Buy milk')
-		self.assertEqual(new_item.list, correct_list)
+	def test_uses_reminder_list_template(self):
+		list_  = List.objects.create()
+		response = self.client.get('/reminders/%d/' % (list_.id,))
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
 
 	def test_POST_redirects_to_list_view(self):
 		correct_list = List.objects.create()
@@ -89,6 +88,20 @@ class ReminderViewTest(TestCase):
 		correct_list = List.objects.create()
 		response = self.client.get('/reminders/%d/' % (correct_list.id,))
 		self.assertEqual(response.context['list'], correct_list)
+
+	def test_can_save_a_POST_request_to_an_existing_list(self):
+		correct_list = List.objects.create()
+		other_list = List.objects.create()
+
+		self.client.post(
+			'/reminders/%d/' % (correct_list.id,),
+			data=REMINDER_ONE
+		)
+
+		self.assertEqual(Reminder.objects.count(), 1)
+		new_item = Reminder.objects.first()
+		self.assertEqual(new_item.title, 'Buy milk')
+		self.assertEqual(new_item.list, correct_list)
 
 	def test_save_a_POST_request_to_existing_reminder(self):
 		list_ = List.objects.create()
@@ -120,18 +133,6 @@ class ReminderViewTest(TestCase):
 		self.assertEqual(edited_reminder.snooze, 15.0)
 		self.assertEqual(edited_reminder.repeat, 36.0)
 		self.assertEqual(Reminder.objects.count(), 1)
-
-	def test_validation_errors_are_sent_back_to_home_page_template(self):
-		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
-		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'reminders/home.html')
-		expected_error = "Reminders need titles!"
-		self.assertContains(response, expected_error)
-
-	def test_empty_reminders_are_not_saved(self):
-		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
-		self.assertEqual(List.objects.count(), 0)
-		self.assertEqual(Reminder.objects.count(), 0)
 
 	def test_displays_only_reminders_for_that_list(self):
 		utc = tzobj.UTC()
@@ -173,26 +174,34 @@ class ReminderViewTest(TestCase):
 		self.assertNotContains(response, 'Buy milkshakes')
 		self.assertNotContains(response, 'Buy beerfloats')
 
-	def test_uses_reminder_list_template(self):
-		list_  = List.objects.create()
-		response = self.client.get('/reminders/%d/' % (list_.id,))
-		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
+	def test_validation_errors_are_shown_on_home_page(self):
+		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
+		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
 
-	def test_validation_errors_appear_reminder_lists(self):
-		list_ = List.objects.create()
-		utc = tzobj.UTC()
-		Reminder.objects.create(
-			title='Buy beer',
-			alarm=datetime.datetime(2015, 8, 3, 16, tzinfo=utc),
-			snooze=11,
-			repeat=21,
-			list=list_
-		)
-		response = self.client.post(
-			'/reminders/%d/' % (list_.id),
-			data=EMPTY_REMINDER
-		)
+	def test_invalid_input_renders_home_template(self):
+		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'reminders/home.html')
+
+	def test_for_invalid_nothing_saved_to_db(self):
+		self.post_invalid_input()
+		self.assertEqual(Reminder.objects.count(), 0)
+
+	def test_for_invalid_renders_reminder_list_template(self):
+		response = self.post_invalid_input()
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
-		expected_error = 'Reminders need titles!'
-		self.assertContains(response, expected_error)
+
+	def test_for_invalid_input_passes_form_to_template(self):
+		response = self.client.post('/reminders/new', data=EMPTY_REMINDER)
+		self.assertIsInstance(response.context['form'], ReminderForm)
+
+	def test_for_invalid_shows_error_on_page(self):
+		response = self.post_invalid_input()	
+		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
+
+	def test_displays_reminder_form(self):
+		list_ = List.objects.create()
+		response = self.client.get('/reminders/%d/' % (list_.id,))
+		self.assertIsInstance(response.context['form'], ReminderForm)
+		self.assertContains(response, 'name="title"')

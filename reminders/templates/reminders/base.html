@@ -13,8 +13,36 @@
             <div class="row">
                 <div class="col-md-8">
                     <h1>{% block header_text %}{% endblock %}</h1>
-                    {% block content %}
-                    {% endblock %}
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <button id="id_new_reminder_btn" type="button" class="btn btn-danger btn-block" 
+                            data-toggle="collapse" data-parent="#accordion" 
+                            href="#id_new_reminder_btn_panel">Create a new reminder!</button>
+                            <div id="id_new_reminder_btn_panel" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                {% block create %}
+                                {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-group" id="id_reminder_list">
+                        {% for reminder in list.reminder_set.all %}
+                            <div class="panel panel-default">
+                                <button id="id_reminder_btn" type="button" class="btn btn-danger btn-block" 
+                                data-toggle="collapse" data-parent="#id_reminder_list" 
+                                href="#id_reminder_btn_panel">{{ reminder.title }}</button>
+                                <div id="id_reminder_btn_panel" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                    {% block reminders %}
+                                    {% endblock %} 
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div> 
+
                 </div>
             </div>
         </div>

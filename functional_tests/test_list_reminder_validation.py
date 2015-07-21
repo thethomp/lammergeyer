@@ -14,34 +14,9 @@ ERRORS = {
 	'id_repeat': 'Repeat time is required!'
 	
 }
-POSSIBLE_INPUT_COMBINATIONS = [
-	# 0
-	[''],
-	# 1, 2, 3, 4
-	['id_title'],['id_alarm'],['id_snooze'],['id_repeat'], 
-	# 5, 6, 7, 8, 9, 10
-	['id_title', 'id_alarm'],['id_title', 'id_snooze'],['id_title', 'id_repeat'],['id_alarm', 'id_snooze'],['id_alarm', 'id_repeat'],['id_snooze', 'id_repeat'], 
-	# 11, 12, 13, 14
-	['id_title', 'id_alarm', 'id_snooze'],['id_title', 'id_alarm', 'id_repeat'],['id_title', 'id_snooze', 'id_repeat'],['id_alarm', 'id_snooze', 'id_repeat'], 
-	# 15
-	['id_title', 'id_alarm', 'id_snooze', 'id_repeat']
-]
 
 class ReminderValidationTest(FunctionalTest):
 	
-	def return_errors_on_empty_inputs(self, reminder, *args):
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_new_reminder_btn'))
-		)
-		self.browser.find_element_by_id('id_new_reminder_btn').click()
-		new_reminder_panel = self.browser.find_element_by_id('id_new_reminder_panel')
-		for arg in args:
-			input = new_reminder_panel.find_element_by_id(arg)
-			input.send_keys(reminder[arg])
-		self.browser.find_element_by_id('id_create_button').click()
-		errors = self.browser.find_elements_by_css_selector('.has-error')
-		return errors
-
 	def test_cannot_add_reminders_with_empty_title_fields(self):
 		## In an effort to make the tests less brittle and more reliable, the use of the 
 		## wait variable below on elements which need interection is going to be used throughout

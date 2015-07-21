@@ -25,9 +25,9 @@ class ReminderForm(forms.ModelForm):
 			'title': forms.fields.TextInput(attrs={
 				'placeholder': 'Enter a reminder',
 			}),
-			'alarm': forms.fields.TextInput(attrs={
+			'alarm': forms.fields.DateTimeInput(attrs={
 				'placeholder': 'MM/DD/YYYY'
-			}),
+			}, format=('%Y-%m-%d')),
 			'snooze': forms.fields.TextInput(attrs={
 				'placeholder': 'Enter snooze'
 			}),

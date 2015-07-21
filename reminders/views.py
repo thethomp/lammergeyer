@@ -113,65 +113,46 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
+	#import pdb; pdb.set_trace()
 	return render(request, 'reminders/home.html', {'form': ReminderForm()})
 
 def view_reminders(request, list_id):
 	list_ = List.objects.get(id=list_id)
-	error = None
-
+	form = ReminderForm()
 	if request.method == 'POST':
-		reminder = Reminder(title = request.POST['reminder_title'], list=list_)
-		utc = tzobj.UTC()
-
 		try:
-			date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
-			reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
+			date = [int(i) for i in request.POST.get('alarm', '').split('-')]
+			utc = tzobj.UTC()
+			reminder_alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
 		except ValueError:
-			pass
-		try:
-			reminder.snooze = float(request.POST['reminder_snooze'])
-		except ValueError:
-			pass
-		try:
-			reminder.repeat = float(request.POST['reminder_repeat'])
-		except ValueError:
-			pass
-		try:
-			reminder.full_clean()
-			reminder.save()
+			reminder_alarm = ''
+		form = ReminderForm(data=request.POST)
+		if form.is_valid():
+			reminder = Reminder.objects.create(
+				title=request.POST['title'],
+				alarm=reminder_alarm,
+				snooze=request.POST['snooze'],
+				repeat=request.POST['repeat'],
+				list=list_
+			)
 			return redirect(list_)
-		except:
-			error = 'Reminders need titles!'
-
-	return render(request, 'reminders/reminder_list.html', {'list': list_, 'error': error})
+	return render(request, 'reminders/reminder_list.html', {'list': list_, 'form': form})
 
 def new_reminder_list(request):
-	list_ = List.objects.create()
-	reminder = Reminder(title = request.POST['reminder_title'], list=list_)
-	utc = tzobj.UTC()
-	
-	try:
-		date = [int(i) for i in request.POST.get('reminder_alarm', '').split('-')]
-		reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
-	except ValueError:
-		pass
-	try:
-		reminder.snooze = float(request.POST['reminder_snooze'])
-	except ValueError:
-		pass
-	try:
-		reminder.repeat = float(request.POST['reminder_repeat'])
-	except ValueError:
-		pass
-	
-	try:
-		reminder.full_clean()
-		reminder.save()
-	except ValidationError:
-		list_.delete()
-		error = "Reminders need titles!"
-		return render(request, 'reminders/home.html', {"error": error})
-	return redirect(list_)
+	form = ReminderForm(data=request.POST)
+	if form.is_valid():
+		list_ = List.objects.create()
+		utc = tzobj.UTC()
+		Reminder.objects.create(
+			title=request.POST['title'],
+			alarm=request.POST['alarm'],
+			snooze=request.POST['snooze'],
+			repeat=request.POST['repeat'],
+			list=list_
+		)
+		return redirect(list_)
+	else:
+		return render(request, 'reminders/home.html', {'form': form})
 
 def edit_reminder(request, pk):
 	date = [int(i) for i in request.POST.get('reminder_alarm_%s' % (pk,), '').split('-')]

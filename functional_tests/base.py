@@ -61,7 +61,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 		element = wait.until(
 			expected_conditions.element_to_be_clickable((By.ID, reminder_button))
 		)
+
 		self.browser.find_element_by_id(reminder_button).click()
+		
 		element = wait.until(
 			expected_conditions.element_to_be_clickable((By.ID, submit_button))
 		)

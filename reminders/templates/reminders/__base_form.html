@@ -1,0 +1,18 @@
+{% block top_form %} 
+    <form class="horizontal-form" role="form" method="POST"  action={% block form_action %}{% endblock %}>
+        <div class="form-group">
+            {% csrf_token %}
+             <table>
+            {% for field in form %}
+                <tr>
+                    <th><div class="form-group has-error">{{ field.errors }}</div></th>
+                    <th><div class="fieldWrapper">{{ field.label_tag }} {{ field }}</div></th>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-default" id="id_submit_button">{% block submit_button %}{% endblock %}</button>
+        </div>
+    </form>
+{% endblock %}
