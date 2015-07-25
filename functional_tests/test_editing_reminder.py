@@ -34,9 +34,7 @@ class ReturningVisitorTest(FunctionalTest):
 
 		# Billy lands on the home page and creates a reminder
 		self.browser.get(self.server_url)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
+		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 		self.create_or_edit_reminder(REMINDER_ONE)
 
 		# He thinks the reminder is perfect and continues doing whatever he is doing 
@@ -49,9 +47,7 @@ class ReturningVisitorTest(FunctionalTest):
 		self.browser = webdriver.Firefox()
 		self.browser.get(billy_url)
 		wait = WebDriverWait(self.browser, 10)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 
 		# Billy sees his original reminder
 		reminders = self.get_all_reminder_values()

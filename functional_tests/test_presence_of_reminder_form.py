@@ -22,12 +22,9 @@ class NewPageTest(FunctionalTest):
 		# Billy lands on the home page and sees the web service title.
 		self.browser.get(self.server_url)
 		self.assertIn(u'Your Reminders', self.browser.title.decode())
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
+		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 
 		# He then sees a button which says "Create a new reminder!"
-		panel = self.browser.find_element_by_id('id_reminder_panel_')
 		buttons = panel.find_elements_by_tag_name('button')
 		self.assertIn("Create a new reminder!", buttons[0].text)
 
@@ -38,9 +35,7 @@ class NewPageTest(FunctionalTest):
 		# Billy clicks this button and a panel is expanded showing the reminder format
 		buttons[0].click()
 
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
-		)
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id'))))
 
 		self.assertTrue(panel is not None)
 		self.assertTrue(panel.is_displayed())

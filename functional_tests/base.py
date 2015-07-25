@@ -61,39 +61,26 @@ class FunctionalTest(StaticLiveServerTestCase):
 		panel_id = 'id_reminder_panel_'
 		if panel:
 			panel_id = panel
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, panel_id))
-		)
-		
-		reminder_panel = self.browser.find_element_by_id(panel_id)
+		reminder_panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, panel_id)))
+
 		buttons = reminder_panel.find_elements_by_tag_name('button')
 		buttons[0].click()
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
-		)
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id'))))
 
 		inputs = reminder_panel.find_elements_by_tag_name('input')
 		for input in inputs:
 			text = input.get_attribute('id')
 			if text in reminder:
-				element = wait.until(
-					expected_conditions.visibility_of(input)
-				)
+				wait.until(expected_conditions.visibility_of(input))
 				input.clear()
 				inputbox = input.send_keys(reminder[text])
 		
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
-		)
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id'))))
 		buttons[1].click()
 
 	def safe_close_panel(self):
 		wait = WebDriverWait(self.browser, 10)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
-		buttons = element.find_elements_by_tag_name('button')
+		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
+		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
-		element = wait.until(
-			expected_conditions.invisibility_of_element_located((By.ID, buttons[1].get_attribute('id')))
-		)
+		wait.until(expected_conditions.invisibility_of_element_located((By.ID, buttons[1].get_attribute('id'))))

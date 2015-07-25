@@ -14,6 +14,5 @@ urlpatterns = [
 	url(r'^new$', views.new_reminder_list, name='new_reminder_list'),
 	url(r'^(\d+)/$', views.view_reminders, name='view_reminders'),
 	url(r'^(\d+)/edit_reminder/(?P<pk>\d+)$', views.edit_reminder, name='edit_reminder'),
-	url(r'^revamp/$', views.test_template)
 ]
 

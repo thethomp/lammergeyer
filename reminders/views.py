@@ -113,7 +113,6 @@ def index( request ):
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
 
 def home_page(request):
-	#import pdb; pdb.set_trace()
 	return render(request, 'reminders/home.html', {'form': ReminderForm()})
 
 def view_reminders(request, list_id):
@@ -166,6 +165,3 @@ def edit_reminder(request, pk):
 			 		}), reminder.pk))
 	form = ReminderForm()
 	return render(request, 'reminders/reminder_list.html', {'list': instance.list, 'form': form, 'forms': forms})
-
-def test_template(request):
-	return render(request, 'reminders/revamp.html')

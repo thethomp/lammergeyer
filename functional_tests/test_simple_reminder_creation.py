@@ -39,10 +39,7 @@ class NewVisitorTest(FunctionalTest):
 
 		# After the form has been submitted, the reminder title is seen as a button in the table below
 		wait = WebDriverWait(self.browser, 10)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_list'))
-		)
-		table = self.browser.find_element_by_id('id_reminder_list')
+		table = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_list')))
 		reminders = table.find_elements_by_tag_name('button')
 		self.assertIn('1: Buy milk', [reminder.text for reminder in reminders])
 

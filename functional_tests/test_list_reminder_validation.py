@@ -27,22 +27,15 @@ class ReminderValidationTest(FunctionalTest):
 		# Della Bahee lands on the user page and expands the reminder creation panel. 
 		# Like a dum dum, he neglects each input field and simply hits Create reminder! button.
 		self.browser.get(self.server_url)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		) 
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))) 
 		self.create_or_edit_reminder(EMPTY_REMINDER)
 
 		# Consequently, he is redirected to the home page and sees error messages appear 
 		# above each field telling him they are required for reminder creation.
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
-		panel = self.browser.find_element_by_id('id_reminder_panel_')
+		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
-		) 
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))) 
 		error = self.browser.find_element_by_css_selector('.has-error')
 		self.assertIn('Reminders need titles!', error.text)
 
@@ -53,19 +46,12 @@ class ReminderValidationTest(FunctionalTest):
 		self.create_or_edit_reminder(REMINDER_ONE)
 
 		# Del does not learn from his mistakes and attempts to create an empty reminder again!
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		) 
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))) 
 		self.create_or_edit_reminder(EMPTY_REMINDER)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
-		)
-		panel = self.browser.find_element_by_id('id_reminder_panel_')
+		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
-		) 
+		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))) 
 
 		# An error message is shown for each field.
 		error = self.browser.find_element_by_css_selector('.has-error')
