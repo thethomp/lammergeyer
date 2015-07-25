@@ -1,5 +1,3 @@
-{% block top_form %} 
-    <form class="horizontal-form" role="form" method="POST"  action={% block form_action %}{% endblock %}>
         <div class="form-group">
             {% csrf_token %}
              <table>
@@ -11,8 +9,3 @@
             {% endfor %}
             </table>
         </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-default" id="id_submit_button">{% block submit_button %}{% endblock %}</button>
-        </div>
-    </form>
-{% endblock %}

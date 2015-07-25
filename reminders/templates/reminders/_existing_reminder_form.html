@@ -1,4 +1,5 @@
-<form class="horizontal-form" role="form" method="POST"  action={% url 'edit_reminder' list.id reminder.pk %}>
+<form class="horizontal-form" role="form" method="POST"  
+    action={% url 'edit_reminder' list.id reminder_pk %}>
     <div class="form-group">
         {% csrf_token %}
          <table>

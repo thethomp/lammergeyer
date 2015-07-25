@@ -26,3 +26,6 @@ class Reminder(models.Model):
 	snooze = models.FloatField(default=8)
 	repeat = models.FloatField(default=300)
 	list = models.ForeignKey(List, default=None)
+
+	def __unicode__(self):
+		return self.title

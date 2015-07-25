@@ -116,20 +116,16 @@ class ReminderViewTest(TestCase):
 		)
 		self.assertEqual(Reminder.objects.count(), 1)
 
-		edited_reminder = {}
-		for key, value in REMINDER_TWO.iteritems():
-			edited_reminder['%s_%d' % (key, saved_reminder.pk,)] = value
-
 		response = self.client.post(
 			'/reminders/%d/edit_reminder/%d' % (list_.id, saved_reminder.pk,),
-			data=edited_reminder,
+			data=REMINDER_TWO,
 		)
 		self.assertRedirects(response, '/reminders/%d/' % (list_.id,))
-
+		
 		edited_reminder = Reminder.objects.get(pk=saved_reminder.pk)
 		self.assertEqual(edited_reminder, saved_reminder)
 		self.assertEqual(edited_reminder.title, 'Buy beer')
-		self.assertEqual(edited_reminder.alarm, datetime.datetime(2015, 6, 23, tzinfo=utc))
+		self.assertEqual(edited_reminder.alarm.date(), datetime.datetime(2015, 6, 23, tzinfo=utc).date())
 		self.assertEqual(edited_reminder.snooze, 15.0)
 		self.assertEqual(edited_reminder.repeat, 36.0)
 		self.assertEqual(Reminder.objects.count(), 1)

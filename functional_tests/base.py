@@ -50,25 +50,28 @@ class FunctionalTest(StaticLiveServerTestCase):
 	def tearDown(self):
 		self.browser.quit()
 
-	def create_or_edit_reminder(self, reminder, reminder_button, submit_button):
+	def create_or_edit_reminder(self, reminder, panel=None):
 		"""
 		The arguments reminder_button and submit_button are the html id's for expanding the
 		reminder and submitting the reminder, respectively. The reminder_button either corresponds
 		to the collapsible form for a new reminder, or the collapsible form of an existing reminder.
 		The submit_button mirrors usage explained above but for submitting forms data in cases above.
 		"""
-		wait = WebDriverWait(self.browser, 20)
+		wait = WebDriverWait(self.browser, 10)
+		panel_id = 'id_reminder_panel_'
+		if panel:
+			panel_id = panel
 		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, reminder_button))
+			expected_conditions.element_to_be_clickable((By.ID, panel_id))
 		)
-
-		self.browser.find_element_by_id(reminder_button).click()
 		
+		reminder_panel = self.browser.find_element_by_id(panel_id)
+		buttons = reminder_panel.find_elements_by_tag_name('button')
+		buttons[0].click()
 		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, submit_button))
+			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
 		)
 
-		reminder_panel = self.browser.find_element_by_id('%s_panel' % (reminder_button,))
 		inputs = reminder_panel.find_elements_by_tag_name('input')
 		for input in inputs:
 			text = input.get_attribute('id')
@@ -80,16 +83,17 @@ class FunctionalTest(StaticLiveServerTestCase):
 				inputbox = input.send_keys(reminder[text])
 		
 		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, submit_button))
+			expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id')))
 		)
-		self.browser.find_element_by_id(submit_button).click()
+		buttons[1].click()
 
 	def safe_close_panel(self):
 		wait = WebDriverWait(self.browser, 10)
 		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_new_reminder_btn'))
+			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))
 		)
-		self.browser.find_element_by_id('id_new_reminder_btn').click()
+		buttons = element.find_elements_by_tag_name('button')
+		buttons[0].click()
 		element = wait.until(
-			expected_conditions.invisibility_of_element_located((By.ID, 'id_create_button'))
+			expected_conditions.invisibility_of_element_located((By.ID, buttons[1].get_attribute('id')))
 		)

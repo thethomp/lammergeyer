@@ -8,7 +8,7 @@ from unittest import skip
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoAlertPresentException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
@@ -32,21 +32,26 @@ class NewVisitorTest(FunctionalTest):
 		# and finally how often the reminder repeats. He then submits the form 
 		# by clicking the Create button. Upon clicking "Create" Billy is taken to a new url
 		# where his reminder shows up in the table
-		self.create_or_edit_reminder(REMINDER_ONE, 'id_new_reminder_btn', 'id_create_button')
+		self.create_or_edit_reminder(REMINDER_ONE)
 		
 		billy_first_list_url = self.browser.current_url
 		self.assertRegexpMatches(billy_first_list_url, '/reminders/.+')
 
 		# After the form has been submitted, the reminder title is seen as a button in the table below
+		wait = WebDriverWait(self.browser, 10)
+		element = wait.until(
+			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_list'))
+		)
 		table = self.browser.find_element_by_id('id_reminder_list')
 		reminders = table.find_elements_by_tag_name('button')
 		self.assertIn('1: Buy milk', [reminder.text for reminder in reminders])
 
 		# Billy clicks the newly created reminder button in the table below. He sees that
 		# the reminder expands and contains all the data entered above
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
-		reminder_btn.click()
-		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
+		panel = self.browser.find_element_by_id('id_reminder_panel_1')
+		buttons = panel.find_elements_by_tag_name('button')
+		buttons[0].click()
+		self.assertEqual(buttons[0].get_attribute('aria-expanded'), 'true')
 		
 		reminders = self.get_all_reminder_values()
 		for value in REMINDER_ONE.itervalues():
@@ -54,7 +59,7 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy decides he wants to create another reminder so he clicks the 'Create new reminder' button
 		# and creates a second reminder
-		self.create_or_edit_reminder(REMINDER_TWO, 'id_new_reminder_btn', 'id_create_button')
+		self.create_or_edit_reminder(REMINDER_TWO)
 
 		# He then checks the table below for reminder one and confirms the contents
 		reminders = self.get_all_reminder_values()
@@ -63,9 +68,10 @@ class NewVisitorTest(FunctionalTest):
 			self.assertIn(value, reminders)
 
 		# Billy now expands reminder two and confirms the contents
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_2')
-		reminder_btn.click()
-		self.assertEqual(reminder_btn.get_attribute('aria-expanded'), 'true')
+		panel = self.browser.find_element_by_id('id_reminder_panel_2')
+		buttons = panel.find_elements_by_tag_name('button')
+		buttons[0].click()
+		self.assertEqual(buttons[0].get_attribute('aria-expanded'), 'true')
 
 		for value in REMINDER_TWO.itervalues():
 			self.assertIn(value, reminders)
@@ -78,7 +84,9 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy visits the home page and there is no trace of his previous reminders
 		self.browser.get(self.live_server_url)
-		reminders = self.get_all_reminder_values()
+		reminders = []
+		with self.assertRaises(NoSuchElementException):
+			reminders = self.get_all_reminder_values()
 
 		for value in REMINDER_ONE.itervalues():
 			self.assertNotIn(value, reminders)
@@ -86,7 +94,7 @@ class NewVisitorTest(FunctionalTest):
 			self.assertNotIn(value, reminders)
 
 		# Billy starts his second list of reminders
-		self.create_or_edit_reminder(REMINDER_THREE, 'id_new_reminder_btn', 'id_create_button')
+		self.create_or_edit_reminder(REMINDER_THREE)
 
 		# Billy's second list is assigned a new url
 		billy_second_list_url = self.browser.current_url
@@ -95,8 +103,9 @@ class NewVisitorTest(FunctionalTest):
 		self.assertNotEqual(billy_first_list_url, billy_second_list_url)
 
 		# The old list is not there and the new reminder shows up on a new list
-		reminder_btn = self.browser.find_element_by_id('id_reminder_btn_1')
-		reminder_btn.click()
+		panel = self.browser.find_element_by_id('id_reminder_panel_1')
+		buttons = panel.find_elements_by_tag_name('button')
+		buttons[0].click()
 		reminders = self.get_all_reminder_values()
 
 		for value in REMINDER_ONE.itervalues():

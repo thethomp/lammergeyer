@@ -3,52 +3,41 @@ import sys
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from reminders.models import Reminder, List
 import reminders.timezone_object as tzobj
 
+
+class ReminderModelTest(TestCase):
+
+	def test_default_values(self):
+		reminder = Reminder()
+		self.assertEqual(reminder.title, '')
+		self.assertEqual(
+			reminder.alarm.strftime('%Y-%m-%d'), 
+			(timezone.now() + datetime.timedelta(days=-1,hours=-8)).strftime('%Y-%m-%d')
+		)
+		self.assertEqual(reminder.snooze, 8)
+		self.assertEqual(reminder.repeat, 300)
+
+	def test_string_representation(self):
+		reminder = Reminder(title='Buy something, anything')
+		self.assertEqual(str(reminder), 'Buy something, anything')
+
+class ListModelTest(TestCase):
+
+	def test_get_absolute_url(self):
+		list_ = List.objects.create()
+		self.assertEqual(list_.get_absolute_url(), '/reminders/%d/' % (list_.id,))
+
 class ListAndReminderModelTest(TestCase):
 
-	def test_saving_and_retrieving_reminders(self):
-		utc = tzobj.UTC()
-		list_ = List()
-		list_.save()
-
-		first_reminder = Reminder()
-		first_reminder.title = 'Our very first reminder'
-		first_reminder.alarm = datetime.datetime(2015, 7, 2, 16, tzinfo=utc)
-		first_reminder.snooze = 10
-		first_reminder.repeat = 240 # lets assume the repeat is in minutes... 240 -> repeat every 4 hrs.
-		first_reminder.list = list_
-		first_reminder.save()
-
-		second_reminder = Reminder()
-		second_reminder.title = 'The second reminder'
-		second_reminder.alarm = datetime.datetime(2015, 7, 2, 16, tzinfo=utc)
-		second_reminder.snooze = 10
-		second_reminder.repeat = 240
-		second_reminder.list = list_
-		second_reminder.save()
-
-		saved_list = List.objects.first()
-		self.assertEqual(saved_list, list_)
-
-		saved_reminders = Reminder.objects.all()
-		self.assertEqual(saved_reminders.count(), 2)
-
-		first_saved_reminder = saved_reminders[0]
-		second_saved_reminder = saved_reminders[1]
-
-		self.assertEqual(first_saved_reminder.title, 'Our very first reminder')
-		self.assertEqual(first_saved_reminder.alarm, datetime.datetime(2015, 7, 2, 16, tzinfo=utc))
-		self.assertEqual(first_saved_reminder.snooze, 10)
-		self.assertEqual(first_saved_reminder.repeat, 240)
-		self.assertEqual(first_saved_reminder.list, list_)
-
-		self.assertEqual(second_saved_reminder.title, 'The second reminder')
-		self.assertEqual(second_saved_reminder.alarm, datetime.datetime(2015, 7, 2, 16, tzinfo=utc))
-		self.assertEqual(second_saved_reminder.snooze, 10)
-		self.assertEqual(second_saved_reminder.repeat, 240)
-		self.assertEqual(second_saved_reminder.list, list_)
+	def test_reminder_is_related_to_list(self):
+		reminder = Reminder()
+		list_ = List.objects.create()
+		reminder.list = list_
+		reminder.save()
+		self.assertIn(reminder, list_.reminder_set.all())
 
 	def test_editing_existing_reminders(self):
 		list_ = List.objects.create()
@@ -90,7 +79,3 @@ class ListAndReminderModelTest(TestCase):
 		with self.assertRaises(ValidationError):
 			reminder.save()
 			reminder.full_clean()
-
-	def test_get_absolute_url(self):
-		list_ = List.objects.create()
-		self.assertEqual(list_.get_absolute_url(), '/reminders/%d/' % (list_.id,))

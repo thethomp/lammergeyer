@@ -120,49 +120,52 @@ def view_reminders(request, list_id):
 	list_ = List.objects.get(id=list_id)
 	form = ReminderForm()
 	if request.method == 'POST':
-		try:
-			date = [int(i) for i in request.POST.get('alarm', '').split('-')]
-			utc = tzobj.UTC()
-			reminder_alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
-		except ValueError:
-			reminder_alarm = ''
 		form = ReminderForm(data=request.POST)
 		if form.is_valid():
-			reminder = Reminder.objects.create(
-				title=request.POST['title'],
-				alarm=reminder_alarm,
-				snooze=request.POST['snooze'],
-				repeat=request.POST['repeat'],
-				list=list_
-			)
+			form.save(for_list=list_)
 			return redirect(list_)
-	return render(request, 'reminders/reminder_list.html', {'list': list_, 'form': form})
+	# Supposedly this counts as one db hit, is cached, and later look-ups use the cached query set
+	reminders = Reminder.objects.filter(list=list_)
+	forms = [
+		(ReminderForm(initial={
+		 			'title': reminder.title,
+		 			'alarm': reminder.alarm,
+		 			'snooze': reminder.snooze,
+		 			'repeat': reminder.repeat
+		 		}), reminder.pk) for reminder in reminders
+	]
+	return render(request, 'reminders/reminder_list.html', {'list': list_, 'form': form, 'forms': forms})
 
 def new_reminder_list(request):
 	form = ReminderForm(data=request.POST)
 	if form.is_valid():
 		list_ = List.objects.create()
-		utc = tzobj.UTC()
-		Reminder.objects.create(
-			title=request.POST['title'],
-			alarm=request.POST['alarm'],
-			snooze=request.POST['snooze'],
-			repeat=request.POST['repeat'],
-			list=list_
-		)
+		form.save(for_list=list_)
 		return redirect(list_)
 	else:
 		return render(request, 'reminders/home.html', {'form': form})
 
 def edit_reminder(request, pk):
-	date = [int(i) for i in request.POST.get('reminder_alarm_%s' % (pk,), '').split('-')]
-	utc = tzobj.UTC()
-	reminder = Reminder.objects.get(pk=pk)
+	instance = Reminder.objects.get(pk=pk)
+	if request.method == 'POST':
+		form = ReminderForm(data=request.POST, instance=instance)
+		if form.is_valid():
+			form.save(for_list=instance.list)
+			return redirect(instance.list)
+	reminders = Reminder.objects.filter(list=instance.list)
+	forms = []
+	for reminder in reminders:
+		if reminder.pk == pk:
+			forms.append(form)
+		else:
+			forms.append((ReminderForm(initial={
+			 			'title': reminder.title,
+			 			'alarm': reminder.alarm,
+			 			'snooze': reminder.snooze,
+			 			'repeat': reminder.repeat
+			 		}), reminder.pk))
+	form = ReminderForm()
+	return render(request, 'reminders/reminder_list.html', {'list': instance.list, 'form': form, 'forms': forms})
 
-	reminder.title = request.POST['reminder_title_%s' % (pk,)]
-	reminder.alarm = datetime.datetime(date[0], date[1], date[2], tzinfo=utc)
-	reminder.snooze = request.POST['reminder_snooze_%s' % (pk,)]
-	reminder.repeat = request.POST['reminder_repeat_%s' % (pk,)]
-	
-	reminder.save()
-	return redirect('/reminders/%d/' % (reminder.list.id))
+def test_template(request):
+	return render(request, 'reminders/revamp.html')

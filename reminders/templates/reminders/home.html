@@ -2,12 +2,16 @@
 
 {% block title %}Your Reminders{% endblock %}
 
-{% block header_text %}Your Reminders{% endblock %}
+{% block cdn_css %}{{ block.super }}{% endblock %}
 
-{% block create %}
- 	{% include 'reminders/_new_reminder_form.html' %}
+{% block content %}
+	<header><h1>Your Reminders</h1></header>
+
+	{% with style='horizontal' name='Create!' %}
+		{% url 'new_reminder_list' as form_action %}
+		{% include 'reminders/reminder_button_form.html' with form_id='new_reminder_form' action=form_action submit_id='id_submit_button' button_name='Create a new reminder!' %}
+	{% endwith %}
+
 {% endblock %}
 
-{% block javascript %}
-	{{ block.super }}
-{% endblock %}
+{% block cdn_scripts %}{{ block.super }}{% endblock %}

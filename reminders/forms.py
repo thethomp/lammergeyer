@@ -38,4 +38,13 @@ class ReminderForm(forms.ModelForm):
 		error_messages = {
 			'title': {'required': EMPTY_REMINDER_TITLE_ERROR}
 		}
+
+	def save(self, for_list):
+		self.instance.list = for_list
+		return super(ReminderForm, self).save()
 	
+class ExistingReminderForm(ReminderForm):
+
+	def __init__(self, for_reminder, *args, **kwargs):
+		super(ExistingReminderForm, self).__init__(*args, **kwargs)
+		self.instance.reminder = for_reminder
