@@ -1,0 +1,20 @@
+{% load i18n %}
+
+{% if form.is_bound and not form.is_valid %}
+	<div class="alert alert-danger">
+		<strong>{% trans 'Errors exist in your reminder form' %}</strong>
+	</div>
+{% endif %}
+
+{% if form.non_field_errors %}
+	{% for error in form.non_field_errors %}
+		<div class="alert alert-danger">
+			{% comment %}Add some styling here eventually{% endcomment %}
+			{{ error }}
+		</div>
+	{% endfor %}
+{% endif %}
+
+{% for field in form %}
+	{% include 'reminders/form_field.html' %}
+{% endfor %}

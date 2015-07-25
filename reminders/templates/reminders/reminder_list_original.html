@@ -1,0 +1,25 @@
+{% extends 'reminders/base.html' %}
+
+{% block title %}Your Reminders{% endblock %}
+
+{% block header_text %}Your Reminders{% endblock %}
+
+{% block new_action %}
+	{% url 'view_reminders' list.id %}
+{% endblock %}
+
+{% block create %}
+ 	{% include 'reminders/__base_form.html' %}
+{% endblock %}
+
+{% block existing_action %}
+	{% url 'edit_reminder' list.id reminder_pk %}
+{% endblock %}
+
+{% block reminders %}
+ 	{% include 'reminders/__base_form.html' %}
+{% endblock %}
+
+{% block javascript %}
+	{{ block.super }}
+{% endblock %}
