@@ -1,0 +1,14 @@
+<div class="panel panel-default" id="id_reminder_panel_{{ forloop.counter }}">
+	<div class="panel-heading">
+		<button id="id_reminder_btn" type="button" class="btn btn-{{ alert|default:"danger" }} btn-block" 
+ 			data-toggle="collapse" href="#id_reminder_collapse_{{ forloop.counter }}" >
+ 			{% if forloop.counter %}{{ forloop.counter }}: {% endif %}
+ 			{% if button_name %}{{ button_name }}{% endif %}
+ 		</button>
+		<div id="id_reminder_collapse_{{ forloop.counter }}" class="panel-collapse collapse">
+			<div class="panel-body">
+				{% include 'reminders/form.html' %}
+			</div>
+		</div>
+	</div>
+</div>

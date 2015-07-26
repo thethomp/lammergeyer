@@ -1,40 +1,31 @@
+import datetime
+
 from django.db import models
 from django.forms import ModelForm, RegexField
 from django.core.validators import RegexValidator
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+
+import reminders.timezone_object as tzobj
 
 # Create your models here.
 
-class UserProfile(models.Model):
-	user = models.OneToOneField(User)
-	phone = models.CharField(max_length=10, blank=True)
-	def __unicode__(self):
-		return self.user.username
+def now_minus_1():
+	utc = tzobj.UTC()
+	return datetime.datetime.now(utc)-datetime.timedelta(days=1)
 
-#class User(models.Model):
-#	email = models.CharField(max_length=100)
-#	password = models.CharField(max_length=100)
-#	phone_number = RegexField(regex=r'^\+?1?\d{9,15}$', error_message = ("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."))
-#	def __str__(self):
-#		return self.email
+class List(models.Model):
+
+	def get_absolute_url(self):
+		return reverse('view_reminders', args=[self.id])
 
 class Reminder(models.Model):
-	user = models.ForeignKey(UserProfile)
-	active = models.BooleanField(default=True)
-	title = models.CharField(max_length=100)
-	reminder_time = models.DateTimeField('reminder time')
-	snooze_duration = models.DateTimeField('snooze')
-	repeat_time = models.DateTimeField('repeat')
-	def __str__(self):
+
+	title = models.CharField(max_length=255, default='')
+	alarm = models.DateTimeField(default=now_minus_1)
+	snooze = models.FloatField(default=8)
+	repeat = models.FloatField(default=300)
+	list = models.ForeignKey(List, default=None)
+
+	def __unicode__(self):
 		return self.title
-    
-#class PhoneModel(ModelForm):
-#	class Meta:
-	#	model = User
-	#	fields = ['phone_number']
-	#user = models.ForeignKey(User)
-	#phone_number = RegexField(regex=r'^\+?1?\d{9,15}$', error_message = ("Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."))
-	#phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-	#phone_number = models.CharField(validators=[phone_regex], blank=True, max_length=10) # validators should be a list
-	#def __str__(self):
-	#	return self.phone_number

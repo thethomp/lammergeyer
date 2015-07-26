@@ -1,12 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from reminders.forms import UserForm, UserProfileForm
 from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from .models import Reminder, UserProfile
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+import datetime
+
+from .models import Reminder, List
+from reminders.forms import UserForm, UserProfileForm, ReminderForm
+import reminders.timezone_object as tzobj
 # Create your views here.
 
 @login_required
@@ -107,3 +111,60 @@ def about(request):
 def index( request ):
 	#return render_to_response
 	return HttpResponse("You're at the Reminders index!<br /><a href=""/reminders/register/"">Register Here</a><br /><a href=""/reminders/login/"">Log In</a>")
+
+def home_page(request):
+	return render(request, 'reminders/home.html', {'form': ReminderForm()})
+
+def reminder_home(request):
+	return render(request, 'reminders/reminder_home.html', {'form': ReminderForm()})
+
+def view_reminders(request, list_id):
+	list_ = List.objects.get(id=list_id)
+	form = ReminderForm()
+	if request.method == 'POST':
+		form = ReminderForm(data=request.POST)
+		if form.is_valid():
+			form.save(for_list=list_)
+			return redirect(list_)
+	# Supposedly this counts as one db hit, is cached, and later look-ups use the cached query set
+	reminders = Reminder.objects.filter(list=list_)
+	forms = [
+		(ReminderForm(initial={
+		 			'title': reminder.title,
+		 			'alarm': reminder.alarm,
+		 			'snooze': reminder.snooze,
+		 			'repeat': reminder.repeat
+		 		}), reminder.pk) for reminder in reminders
+	]
+	return render(request, 'reminders/reminder_list.html', {'list': list_, 'form': form, 'forms': forms})
+
+def new_reminder_list(request):
+	form = ReminderForm(data=request.POST)
+	if form.is_valid():
+		list_ = List.objects.create()
+		form.save(for_list=list_)
+		return redirect(list_)
+	else:
+		return render(request, 'reminders/home.html', {'form': form})
+
+def edit_reminder(request, pk):
+	instance = Reminder.objects.get(pk=pk)
+	if request.method == 'POST':
+		form = ReminderForm(data=request.POST, instance=instance)
+		if form.is_valid():
+			form.save(for_list=instance.list)
+			return redirect(instance.list)
+	reminders = Reminder.objects.filter(list=instance.list)
+	forms = []
+	for reminder in reminders:
+		if reminder.pk == pk:
+			forms.append(form)
+		else:
+			forms.append((ReminderForm(initial={
+			 			'title': reminder.title,
+			 			'alarm': reminder.alarm,
+			 			'snooze': reminder.snooze,
+			 			'repeat': reminder.repeat
+			 		}), reminder.pk))
+	form = ReminderForm()
+	return render(request, 'reminders/reminder_list.html', {'list': instance.list, 'form': form, 'forms': forms})
