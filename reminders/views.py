@@ -115,6 +115,9 @@ def index( request ):
 def home_page(request):
 	return render(request, 'reminders/home.html', {'form': ReminderForm()})
 
+def reminder_home(request):
+	return render(request, 'reminders/reminder_home.html', {'form': ReminderForm()})
+
 def view_reminders(request, list_id):
 	list_ = List.objects.get(id=list_id)
 	form = ReminderForm()

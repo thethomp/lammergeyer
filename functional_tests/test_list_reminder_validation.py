@@ -26,7 +26,7 @@ class ReminderValidationTest(FunctionalTest):
 
 		# Della Bahee lands on the user page and expands the reminder creation panel. 
 		# Like a dum dum, he neglects each input field and simply hits Create reminder! button.
-		self.browser.get(self.server_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_'))) 
 		self.create_or_edit_reminder(EMPTY_REMINDER)
 

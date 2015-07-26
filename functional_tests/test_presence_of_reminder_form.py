@@ -20,7 +20,7 @@ class NewPageTest(FunctionalTest):
 		wait = WebDriverWait(self.browser, 10)
 
 		# Billy lands on the home page and sees the web service title.
-		self.browser.get(self.server_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		self.assertIn(u'Your Reminders', self.browser.title.decode())
 		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 

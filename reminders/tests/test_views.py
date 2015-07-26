@@ -7,40 +7,41 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.utils import timezone
 
-from reminders.views import home_page
+from reminders.views import home_page, reminder_home
 from reminders.models import Reminder, List
 from reminders.forms import ReminderForm, EMPTY_REMINDER_TITLE_ERROR
 from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER
 import reminders.timezone_object as tzobj
 
-class HomePageTest(TestCase):
+class RemindersPageTest(TestCase):
 	maxDiff = None
 
-	def test_root_url_resolves_to_home_page_view(self):
-		found = resolve('/')
-		self.assertEqual(found.func, home_page)
+	def test_reminders_home_url_resolves_to_reminder_home_view(self):
+		found = resolve('/reminders/home/')
+		self.assertEqual(found.func, reminder_home)
 
-	def test_home_page_returns_correct_html(self):
+	def test_reminder_home_returns_correct_html(self):
 		request = HttpRequest()
-		response = home_page(request)
+		response = reminder_home(request)
 
-		expected_html = render_to_string('reminders/home.html', {'form': ReminderForm()})
+		expected_html = render_to_string('reminders/reminder_home.html', {'form': ReminderForm()})
 
 		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
-	def test_home_page_renders_home_template(self):
-		response = self.client.get('/')
-		self.assertTemplateUsed(response, 'reminders/home.html')
+	def test_reminder_home_renders_reminder_home_template(self):
+		response = self.client.get('/reminders/home/')
+		self.assertTemplateUsed(response, 'reminders/reminder_home.html')
 
-	def test_home_page_uses_item_form(self):
-		response = self.client.get('/')
+	def test_reminder_home_uses_item_form(self):
+		response = self.client.get('/reminders/home/')
 		self.assertIsInstance(response.context['form'], ReminderForm)
 
-	def test_home_page_only_saves_reminders_when_necessary(self):
+	def test_reminder_home_only_saves_reminders_when_necessary(self):
 		request = HttpRequest()
-		home_page(request)
+		reminder_home(request)
 		self.assertEqual(Reminder.objects.count(), 0)
 
+	# The tests below might make more sense being in a different class
 	def test_redirects_after_POST(self):
 		response = self.client.post(
 			'/reminders/new',
@@ -201,3 +202,8 @@ class ReminderViewTest(TestCase):
 		response = self.client.get('/reminders/%d/' % (list_.id,))
 		self.assertIsInstance(response.context['form'], ReminderForm)
 		self.assertContains(response, 'name="title"')
+
+class HomePageTest(TestCase):
+
+	def test_root_url_resolves_to_home_page(self):
+		pass

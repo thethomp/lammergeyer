@@ -25,7 +25,7 @@ class NewVisitorTest(FunctionalTest):
 
 	def test_new_user_can_create_and_display_a_new_reminder(self):
 		# Billy lands on the home page
-		self.browser.get(self.server_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		
 		# Billy is ready to create a new reminder so he expands the new reminder panel.
 		# Billy gives his reminder a title, a date time, a snooze duration, 
@@ -80,7 +80,7 @@ class NewVisitorTest(FunctionalTest):
 		self.browser = webdriver.Firefox()
 
 		# Billy visits the home page and there is no trace of his previous reminders
-		self.browser.get(self.live_server_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		reminders = []
 		with self.assertRaises(NoSuchElementException):
 			reminders = self.get_all_reminder_values()

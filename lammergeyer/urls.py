@@ -5,6 +5,6 @@ from reminders import urls as reminders_urls
 
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
-	url(r'^$', reminders_views.home_page, name='home'),
+	#url(r'^$', reminders_views.home_page, name='home'),
 	url(r'^reminders/', include(reminders_urls)),
 ]

@@ -33,7 +33,7 @@ class ReturningVisitorTest(FunctionalTest):
 		wait = WebDriverWait(self.browser, 10)
 
 		# Billy lands on the home page and creates a reminder
-		self.browser.get(self.server_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 		self.create_or_edit_reminder(REMINDER_ONE)
 
