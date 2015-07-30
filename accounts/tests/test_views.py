@@ -1,13 +1,18 @@
-from unittest import TestCase
+from django.test import TestCase
+from django.http import HttpRequest
+from django.template.loader import render_to_string
+from django.core.urlresolvers import resolve
+
+from accounts.views import account_login
 
 class AccountsLoginPageTest(TestCase):
 
 	def test_login_url_resolves_to_account_login_view(self):
-		found = self.client.get('/accounts/login/')
+		found = resolve('/accounts/login/')
 		self.assertEqual(found.func, account_login)
 
 	def test_login_renders_login_template(self):
-		response = self.client.get('/acounts/login/')
+		response = self.client.get('/accounts/login/')
 		self.assertTemplateUsed(response, 'accounts/login.html')
 
 	def test_login_page_returns_correct_html(self):
