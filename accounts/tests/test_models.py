@@ -31,6 +31,9 @@ class UserManagerTests(TestCase):
 		self.assertFalse(first_user.is_staff)
 		self.assertFalse(first_user.is_superuser)
 
-	def test_user_manager_forbids_empty_email(self):
-		with self.assertRaises(ValueError):
-			CustomUser.objects.create_user(email='', password='1234')
+	def test_user_manager_forbids_empty_email_or_empty_password(self):
+		# Remember that 'blank=False' by default for django char fields
+		user = CustomUser(email='', password='')
+		with self.assertRaises(ValidationError):
+			user.save()
+			user.full_clean()
