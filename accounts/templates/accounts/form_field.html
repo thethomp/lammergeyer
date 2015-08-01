@@ -10,7 +10,7 @@
 	
 
 	{% block control_group %}
-		<div class="form-group {% if field.errors %}has-error{% endif %}">
+		<div class="form-group{% if field.errors %} has-error{% endif %}">
 			{% block widget %}
 				{% comment %}For some reason if we remove {{ field }} 
 				and errors are in the field, inputs stop will stop showing. 
