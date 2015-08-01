@@ -27,5 +27,13 @@ class Reminder(models.Model):
 	repeat = models.FloatField(default=300)
 	list = models.ForeignKey(List, default=None)
 
+	"""
+	https://docs.djangoproject.com/en/1.8/topics/auth/customizing/
+	'When you define a foreign key or many-to-many relations to the 
+	User model, you should specify the custom model using the 
+	AUTH_USER_MODEL setting. For example: 
+	user = models.ForeignKey(settings.AUTH_USER_MODEL)'
+	"""
+
 	def __unicode__(self):
 		return self.title
