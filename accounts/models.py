@@ -7,6 +7,9 @@ from django.utils.translation import ugettext_lazy as _
 class CustomUserManager(auth_models.BaseUserManager):
 
 	def create_user(self, email, password, **extra_arguments):
+		"""
+		Creates custom user that is based off the supplied email.
+		"""
 		
 		if not email:
 			raise ValueError('Email cannot be empty!')
@@ -19,10 +22,9 @@ class CustomUserManager(auth_models.BaseUserManager):
 		
 class CustomUser(auth_models.AbstractBaseUser,
 				   auth_models.PermissionsMixin):
-	# https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser
-
 	"""
-	More or less copied from django-oscar and django AbstractBaseUser implementations. Check GitHub
+	More or less copied from django-oscar and django AbstractBaseUser implementations. Check GitHub and Docs.
+	https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser
 	https://github.com/django-oscar/blob/master/src/apps/customer/abstract_models.py
 	https://github.com/django/django/blob/master/django/contrib/auth/models.py 
 	"""
@@ -35,7 +37,6 @@ class CustomUser(auth_models.AbstractBaseUser,
 			'Designates whether this user can log into this admin site.'
 		),
 	)
-	
 
 	USERNAME_FIELD = 'email'
 

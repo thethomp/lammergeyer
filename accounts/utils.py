@@ -3,7 +3,8 @@ def normalize_email(email):
 	The point of this method is to lowercase the
 	email address for storage in db. An argument 
 	could be made that uppercased addresses are 
-	different.
+	different. Does Google treat Jj@gmail.com 
+	differently than jj@gmail.com??
 	"""
 	clean_email = email.strip()
 	if '@' in clean_email:
