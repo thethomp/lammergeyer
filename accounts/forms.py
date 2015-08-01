@@ -15,21 +15,23 @@ class RegisterForm(forms.ModelForm):
 		'email_exists':_('Email already already in use'),
 	}
 
-	email = forms.EmailField(label=_("Email Address"), 
+	email = forms.EmailField(label=_("Email Address"),
 		error_messages={
 		'required': 'An email address is required',
 		'invalid': 'The given email address is invalid'
-		}
+		},
 	)
 	password1 = forms.CharField(label=_("Password"),
+		widget=forms.PasswordInput,
 		error_messages = {
 			'required': 'Password cannot be blank'
-		}
+		},
 	)
 	password2 = forms.CharField(label=_("Repeat Password"),
+		widget=forms.PasswordInput,
 		error_messages = {
 			'required': 'Password cannot be blank'
-		}
+		},
 	)
 
 	class Meta:
