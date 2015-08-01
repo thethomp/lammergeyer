@@ -12,6 +12,7 @@ class RegisterForm(forms.ModelForm):
 
 	error_messages = {
 		'password_mismatch': _('Passwords do not match'),
+		'email_exists':_('Email already already in use'),
 	}
 
 	email = forms.EmailField(label=_("Email Address"), 
@@ -53,4 +54,24 @@ class RegisterForm(forms.ModelForm):
 		with a query set.
 		"""
 		email = ne(self.cleaned_data['email'])
+		if CustomUser.objects.filter(email=email).exists():
+			raise forms.ValidationError(
+				self.error_messages['email_exists'],
+				code='email_exists'
+			)
 		return email
+
+	def save(self, commit=True):
+		"""
+		Save the form -- copy of django's save() in UserCreationForm
+		"""
+		user = super(RegisterForm, self).save(commit=False)
+		# We don't commit here because we want to modify the password.
+		# In fact, any time we want to change some of the data before 
+		# we save it, we can override the save with commit=False. SO 
+		# has the use case as populating null fields at this point. Also
+		# can be used in the views for setting foreign keys.
+		user.set_password(self.cleaned_data['password1'])
+		if commit:
+			user.save()
+		return user

@@ -27,7 +27,9 @@ class UserManagerTests(TestCase):
 		CustomUser.objects.create_user(email='jj@gmail.com', password='1234')
 		first_user = CustomUser.objects.first()
 		self.assertEqual(first_user.email, 'jj@gmail.com')
-		self.assertEqual(first_user.password, '1234')
+		# In CustomUserManager we are using set_password to store passwords
+		# as a hash. So the assert below should be a NotEqual
+		self.assertNotEqual(first_user.password, '1234')
 		self.assertFalse(first_user.is_staff)
 		self.assertFalse(first_user.is_superuser)
 
@@ -37,3 +39,8 @@ class UserManagerTests(TestCase):
 		with self.assertRaises(ValidationError):
 			user.save()
 			user.full_clean()
+
+	def test_password_is_not_stored_as_plain_text(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		saved_user = CustomUser.objects.first()
+		self.assertNotEqual(saved_user.password, '123')

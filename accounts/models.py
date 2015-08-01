@@ -14,9 +14,8 @@ class CustomUserManager(auth_models.BaseUserManager):
 		if not email:
 			raise ValueError('Email cannot be empty!')
 
-		user = self.model(
-			email=email, password=password,
-		)
+		user = self.model(email=email)
+		user.set_password(password)
 		user.save(using=self._db)
 		return user
 		

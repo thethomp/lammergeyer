@@ -1,6 +1,9 @@
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 
 from accounts.forms import RegisterForm
+from accounts.models import CustomUser
+from .base import VALID_USER
 
 class TestRegisterForm(TestCase):
 
@@ -89,8 +92,29 @@ class TestRegisterForm(TestCase):
 		self.assertFalse(form.is_valid())
 		self.assertIn("Passwords do not match", form.errors['password2'])
 
-	def test_custom_form_save_works(self):
-		pass
+	def test_custom_form_save_updates_db(self):
+		form = RegisterForm(
+			data=VALID_USER
+		)
+		self.assertTrue(form.is_valid())
+		form.save()
+		self.assertEqual(CustomUser.objects.count(), 1)
+		saved_user = CustomUser.objects.first()
+		self.assertEqual(saved_user.email, 'jj@gmail.com')
+		self.assertNotEqual(saved_user.password, '123')
 
 	def test_password_stored_as_hash(self):
-		pass
+		form = RegisterForm(
+			data=VALID_USER
+		)
+		form.save()
+		saved_user = CustomUser.objects.first()
+		self.assertNotEqual(saved_user.password, '123')
+
+	def test_form_displays_existing_email_error(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		form = RegisterForm(
+			data=VALID_USER
+		)
+		self.assertFalse(form.is_valid())
+		self.assertIn('Email already already in use', form.as_p())
