@@ -150,9 +150,9 @@ def new_reminder_list(request):
 def edit_reminder(request, list_id, pk):
 	## Two db hits
 	edited_reminder = Reminder.objects.get(pk=pk)
+	## Here
+	form = ReminderForm(data=request.POST, instance=edited_reminder)
 	if request.method == 'POST':
-		## Here
-		form = ReminderForm(data=request.POST, instance=edited_reminder)
 		if form.is_valid():
 			form.save(for_list=edited_reminder.list)
 			return redirect(edited_reminder.list)
