@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.forms import RegisterForm
 from accounts.models import CustomUser
-from .base import VALID_USER
+from .base import VALID_USER, INVALID_USER
 
 class TestRegisterForm(TestCase):
 
@@ -15,11 +15,7 @@ class TestRegisterForm(TestCase):
 
 	def test_form_validation_for_blank_form(self):
 		form = RegisterForm(
-			data={
-				'email':'',
-				'password1': '',
-				'password2': ''
-			}
+			data=INVALID_USER
 		)
 		self.assertFalse(form.is_valid())
 		self.assertIn("An email address is required" , form.errors['email'])

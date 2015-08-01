@@ -5,3 +5,10 @@ VALID_USER = {
 	'password1': '123',
 	'password2': '123' 
 }
+
+
+INVALID_USER = {
+	'email': '',
+	'password1': '',
+	'password2': ''
+}

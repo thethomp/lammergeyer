@@ -6,7 +6,7 @@ from django.core.urlresolvers import resolve
 from accounts.views import account_login, account_register
 from accounts.forms import LoginForm, RegisterForm
 from accounts.models import CustomUser
-from .base import VALID_USER
+from .base import VALID_USER, INVALID_USER
 
 class AccountsLoginPageTest(TestCase):
 
@@ -99,22 +99,14 @@ class AccountsRegisterPageTest(TestCase):
 	def test_invalid_POST_renders_register_form(self):
 		response = self.client.post(
 			'/accounts/register/',
-			data={
-				'email':'',
-				'password1': '',
-				'password2': ''
-			}
+			data=INVALID_USER
 		)
 		self.assertIsInstance(response.context['form'], RegisterForm)
 
 	def test_invalid_POST_displays_errors(self):
 		response = self.client.post(
 			'/accounts/register/',
-			data={
-				'email':'',
-				'password1': '',
-				'password2': ''
-			}
+			data=INVALID_USER
 		)
 		self.assertIn('An email address is required', response.content.decode())
 		self.assertIn('Password cannot be blank', response.content.decode())
