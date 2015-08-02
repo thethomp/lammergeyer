@@ -5,8 +5,11 @@ from accounts.models import CustomUser
 # forms.ModelForms has their own normalize_email I believe
 from accounts.utils import normalize_email as ne
 
-class LoginForm():
-	pass
+class LoginForm(forms.Form):
+	
+	email = forms.EmailField(label=_("Email Address"))
+	password = forms.CharField(label=_("Password"))
+	
 
 class RegisterForm(forms.ModelForm):
 
