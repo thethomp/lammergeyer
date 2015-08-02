@@ -1,6 +1,9 @@
-from .base import FunctionalTest
-
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from unittest import skip
+
+from .base import FunctionalTest
 
 class NewUserTest(FunctionalTest):
 
@@ -18,26 +21,39 @@ class NewUserTest(FunctionalTest):
 		self.assertIn('email', input_names)
 		self.assertIn('password', input_names)
 
+		a_tags = self.browser.find_elements_by_tag_name('a')
+		a_text = [a.text for a in a_tags]
+		self.assertIn('Register', a_text)
+		a_tags[0].click()
+
 		# Surprisingly, Del knows that he does not have an account yet. So he clicks on the
 		# hyperlink 'Sign Up' and is redirected to a registration page
 		## Should redirect to 'thethomp.info/accounts/register/'
-		registration_url = self.browser.current_url
-		self.assertRegexpMatches(registration, '/accounts/register.+')
-		self.fail('Finish me!')
+		register_url = self.browser.current_url
+		self.assertRegexpMatches(register_url, '/accounts/register.+')
 
 		# The registration page is similar to login page except for an additional field
 		# password field with label 'Re-enter Password'
+		form = self.browser.find_element_by_tag_name('form')
+		inputs = form.find_elements_by_tag_name('input')
+		input_names = [input.get_attribute('name') for input in inputs]
+		self.assertIn('email', input_names)
+		self.assertIn('password1', input_names)
+		self.assertIn('password2', input_names)
 
-		# Del creates enters his email address into the appropriate field, then his password, and finally
+		# Del enters his email address into the appropriate field, then his password, and finally
 		# confirms his password in the second password field.
+		#import pdb; pdb.set_trace()
+		wait = WebDriverWait(self.browser, 10)
+		#wait.until(expected_conditions.element_to_be_clickable((By.ID, inputs[0].get_attribute('id'))))
+		inputs = [input for input in inputs if 'hidden' not in input.get_attribute('type')]
+		wait.until(expected_conditions.visibility_of(inputs[0]))
+		inputs[0].send_keys('jj@gmail.com')
+		inputs[1].send_keys('123')
+		inputs[2].send_keys('123')
 
-		# Del clicks 'Register' button. He is redirected to an email confirmation page where he is prompted
-		# to enter a validation code which verifies access to the email associated with the registration.
+		# Del clicks 'Register' button. He is redirected to the login page where he can enter his credentials
+		submit_button = self.browser.find_element_by_id('id_register')
+		submit_button.click()
 
-		# Del recieved the activation email and enters the code into the input box asking for it.
-		# Again he is redirected but this time to a page which exclaiming 'Registration Successful!'
-
-		# There is a hyperlink on this page called 'Log In' which takes Del back to the beginning, to the login
-		# page
-		self.browser.get('%s%s' % (self.server_url, '/accounts/login/',))
 		self.assertRegexpMatches(self.browser.current_url, '/accounts/login.+')

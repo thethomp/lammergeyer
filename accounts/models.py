@@ -40,3 +40,6 @@ class CustomUser(auth_models.AbstractBaseUser,
 	USERNAME_FIELD = 'email'
 
 	objects = CustomUserManager()
+
+	def __unicode__(self):
+		return self.email

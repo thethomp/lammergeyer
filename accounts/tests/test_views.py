@@ -23,9 +23,9 @@ class AccountsLoginPageTest(TestCase):
 		request = HttpRequest()
 		response = account_login(request)
 
-		expected_html = render_to_string('accounts/login.html')
+		expected_html = render_to_string('accounts/login.html', {'form': LoginForm})
 
-		self.assertEqual(response.content.decode(), expected_html)
+		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
 	def test_login_form_is_used(self):
 		response = self.client.get(

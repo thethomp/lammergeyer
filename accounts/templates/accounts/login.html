@@ -1,1 +1,7 @@
 {% extends 'accounts/base.html' %}
+
+{% block content %}
+	{% include 'accounts/form.html' with name='Login' %}
+	<a href="http://localhost:8081/accounts/register/">Register</a>
+	{# <a href="http://localhost:8000/accounts/register/">Register</a> #}
+{% endblock %}

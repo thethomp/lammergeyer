@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
-from accounts.forms import RegisterForm
+from accounts.forms import RegisterForm, LoginForm
 from accounts.models import CustomUser
 from .base import VALID_USER, INVALID_USER
 
@@ -114,3 +114,10 @@ class TestRegisterForm(TestCase):
 		)
 		self.assertFalse(form.is_valid())
 		self.assertIn('Email already already in use', form.as_p())
+
+class LoginFormTest(TestCase):
+
+	def test_login_form_is_labeled(self):
+		form = LoginForm()
+		self.assertIn('Email Address', form.as_p())
+		self.assertIn('Password', form.as_p())
