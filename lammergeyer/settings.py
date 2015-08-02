@@ -55,6 +55,7 @@ ROOT_URLCONF = 'lammergeyer.urls'
 WSGI_APPLICATION = 'lammergeyer.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTHENTICATION_BACKENDS = ['accounts.backends.EmailAuthBackend']
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
