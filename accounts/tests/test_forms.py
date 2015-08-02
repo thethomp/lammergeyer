@@ -115,9 +115,55 @@ class TestRegisterForm(TestCase):
 		self.assertFalse(form.is_valid())
 		self.assertIn('Email already already in use', form.as_p())
 
+
 class LoginFormTest(TestCase):
 
-	def test_login_form_is_labeled(self):
+	def test_form_is_labeled(self):
 		form = LoginForm()
 		self.assertIn('Email Address', form.as_p())
 		self.assertIn('Password', form.as_p())
+
+	def test_form_accepts_valid_credentials(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		form = LoginForm(data={'email': 'jj@gmail.com', 'password': '123'})
+		self.assertTrue(form.is_valid())
+
+	def test_form_raises_error_on_invalid_password(self):
+		# "That password is incorrect"
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		form = LoginForm(data={'email': 'jj@gmail.com', 'password': '1234'})
+		self.assertFalse(form.is_valid())
+		self.assertIn('Incorrect email or password', form.errors['__all__'])
+
+	def test_form_raises_error_on_invalid_email(self):
+		# "Email does not exist"
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		form = LoginForm(data={'email': 'j@gmail.com', 'password': '1234'})
+		self.assertFalse(form.is_valid())
+		self.assertIn('Incorrect email or password', form.errors['__all__'])
+
+	def test_form_raises_error_on_blank_email(self):
+		pass
+
+	def test_form_raises_error_on_blank_password(self):
+		pass
+
+	def test_authenticate_returns_a_user_if_user_exists(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		from accounts.backends import EmailAuthBackend
+		backend = EmailAuthBackend()
+		user = backend.authenticate(email='jj@gmail.com', password='123')
+		self.assertTrue(user)
+
+	def test_authenticate_returns_None_if_user_does_not_exist(self):
+		from accounts.backends import EmailAuthBackend
+		backend = EmailAuthBackend()
+		user = backend.authenticate(email='jj@gmail.com', password='123')
+		self.assertFalse(user)
+
+	def test_authenticate_returns_None_if_password_is_wrong(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		from accounts.backends import EmailAuthBackend
+		backend = EmailAuthBackend()
+		user = backend.authenticate(email='jj@gmail.com', password='1234')
+		self.assertFalse(user)

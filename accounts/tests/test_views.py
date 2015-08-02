@@ -46,7 +46,16 @@ class AccountsLoginPageTest(TestCase):
 
 	def test_login_page_redirects_after_POST(self):
 		# Test if successful credentials redirect to /reminders/reminder_home for now
-		pass
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		response = self.client.post(
+			'/accounts/login/',
+			data={
+				'email': 'jj@gmail.com',
+				'password': '123'
+			}
+		)
+		self.assertRedirects(response, '/reminders/home/')
+
 
 class AccountsRegisterPageTest(TestCase):
 	maxDiff = None
