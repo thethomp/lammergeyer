@@ -1,0 +1,13 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block cdn_css %}{{ block.super }}{% endblock %}
+
+{% block content %}
+	{% with name='Register' %}
+		{% include 'accounts/form.html' with submit_id='id_register' %}
+	{% endwith %}
+{% endblock %}
+
+{% block cdn_scripts %}{{ block.super }}{% endblock %}

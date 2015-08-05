@@ -59,7 +59,7 @@ class RemindersPageTest(TestCase):
 		new_item = Reminder.objects.first()
 		self.assertEqual(new_item.title, 'Buy milk')
 
-class ReminderViewTest(TestCase):
+class ReminderListViewTest(TestCase):
 
 	def post_invalid_input(self):
 		list_ = List.objects.create()

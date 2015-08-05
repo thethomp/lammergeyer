@@ -1,0 +1,48 @@
+{% load i18n %}
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        {% load static %}
+        <title>{% block title %}Reminders{% endblock %}</title>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="{% block description %}{% endblock %}">
+        <meta name="keywords" content="{% block keywords %}{% endblock %}">
+        <meta name="viewport" content="{% block viewport %}width=device-width{% endblock %}, initial-scale=1">
+
+        {% block favicon %}
+        {% endblock %}
+
+        {% block cdn_css %}
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        {% endblock %}
+
+        {% block mainstyles %}
+            {% comment %}
+            Put CSS that we eventually develop here
+            {% endcomment %}
+        {% endblock %}
+
+        {# Page specific CSS #}
+        {% block extrastyles %}{% endblock %}
+
+        {% block extrahead %}{% endblock %}
+    </head>
+
+    <body id="{% block body_id %}default{% endblock %}" class="{% block body_class %}default{% endblock %}">
+        {# Content goes in content block #}
+        {% block content %}{% endblock %}
+
+        {% block cdn_scripts %}
+            <script src="http://code.jquery.com/jquery.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        {% endblock %}
+
+        {% block scripts %}{% endblock %}
+
+        {% block extrascripts %}{% endblock %}
+    </body>
+</html>

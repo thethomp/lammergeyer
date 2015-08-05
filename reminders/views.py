@@ -147,15 +147,19 @@ def new_reminder_list(request):
 	else:
 		return render(request, 'reminders/home.html', {'form': form})
 
-def edit_reminder(request, pk):
-	instance = Reminder.objects.get(pk=pk)
+def edit_reminder(request, list_id, pk):
+	## Two db hits
+	edited_reminder = Reminder.objects.get(pk=pk)
+	## Here
+	form = ReminderForm(instance=edited_reminder)
 	if request.method == 'POST':
-		form = ReminderForm(data=request.POST, instance=instance)
+		form = ReminderForm(data=request.POST, instance=edited_reminder)
 		if form.is_valid():
-			form.save(for_list=instance.list)
-			return redirect(instance.list)
-	reminders = Reminder.objects.filter(list=instance.list)
+			form.save(for_list=edited_reminder.list)
+			return redirect(edited_reminder.list)
+	reminders = Reminder.objects.filter(list=edited_reminder.list)
 	forms = []
+	## Here; Can probably optimize later
 	for reminder in reminders:
 		if reminder.pk == pk:
 			forms.append(form)
@@ -167,4 +171,4 @@ def edit_reminder(request, pk):
 			 			'repeat': reminder.repeat
 			 		}), reminder.pk))
 	form = ReminderForm()
-	return render(request, 'reminders/reminder_list.html', {'list': instance.list, 'form': form, 'forms': forms})
+	return render(request, 'reminders/reminder_list.html', {'list': edited_reminder.list, 'form': form, 'forms': forms})
