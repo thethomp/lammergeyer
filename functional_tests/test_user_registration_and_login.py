@@ -55,13 +55,7 @@ class NewUserTest(FunctionalTest):
 
 		# Della Bahee is eager to test the reminder functionality so he quickly logs in with the values from
 		# the registration page
-		inputs = self.gather_form_inputs()
-		wait = WebDriverWait(self.browser, 10)
-		wait.until(expected_conditions.visibility_of(inputs[0]))
-		inputs[0].send_keys('jj@gmail.com')
-		inputs[1].send_keys('123')
-		login_button = self.browser.find_element_by_id('id_login')
-		login_button.click()
+		self.login_test_user()
 
 		# No errors show up, and Del is redirected to the reminders app urls
 		errors = self.browser.find_elements_by_css_selector('has-error')

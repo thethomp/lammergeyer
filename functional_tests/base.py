@@ -101,3 +101,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 		inputs[1].send_keys('123')
 		submit_button = self.browser.find_element_by_id('id_login')
 		submit_button.click()
+
+	def get_all_reminder_values(self):
+		table = self.browser.find_element_by_id('id_reminder_list')
+		reminders = table.find_elements_by_tag_name('input')
+		reminders = [reminder.get_attribute('value') for reminder in reminders]
+		return reminders

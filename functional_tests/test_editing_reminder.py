@@ -14,20 +14,6 @@ from selenium.webdriver.common.keys import Keys
 
 class ReturningVisitorTest(FunctionalTest):
 
-	""" Utility Functions"""
-
-	def get_all_reminder_values(self):
-		wait = WebDriverWait(self.browser, 10)
-		element = wait.until(
-			expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_list'))
-		)
-		table = self.browser.find_element_by_id('id_reminder_list')
-		reminders = table.find_elements_by_tag_name('input')
-		reminders = [reminder.get_attribute('value') for reminder in reminders]
-		return reminders
-
-	"""Functional Test"""
-	
 	def test_user_can_create_reminder_and_then_edit_it_later(self):
 		## For consistency
 		wait = WebDriverWait(self.browser, 10)
