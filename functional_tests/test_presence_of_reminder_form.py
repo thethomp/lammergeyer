@@ -18,6 +18,8 @@ class NewPageTest(FunctionalTest):
 	def test_new_user_lands_on_home_page_and_clicks_to_see_reminder_form(self):
 		## To help with stability
 		wait = WebDriverWait(self.browser, 10)
+		## Because of decorators, we need to login a user for these tests to past
+		self.login_test_user()
 
 		# Billy lands on the home page and sees the web service title.
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))

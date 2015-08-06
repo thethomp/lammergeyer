@@ -18,13 +18,14 @@ class LoginRequiredTest(FunctionalTest):
 			repeat=10,
 			list=self.list_
 		)
-		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		#CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 		super(LoginRequiredTest, self).setUp()
 
 	def test_reminder_urls_redirect_if_not_logged_in(self):
 		# Del tries to reach the reminder app without logging in by going directly
 		# to the reminders home url but Del is redirected because he hasn't logged
 		# in.
+
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		self.assertRegexpMatches(self.browser.current_url, '/accounts/login.+')
 
@@ -36,17 +37,18 @@ class LoginRequiredTest(FunctionalTest):
 		self.assertRegexpMatches(self.browser.current_url, '/accounts/login.+')
 
 		# Befuddled, Del tries to edit his reminder but is still redirected
-		self.browser.get('%s%s%s%s%s/' % 
-			(self.browser.current_url, '/reminders/', self.list_.id, '/edit/', self.reminder.pk,)
+		self.browser.get('%s%s%s%s%s' % 
+			(self.server_url, '/reminders/', self.list_.id, '/edit_reminder/', self.reminder.pk,)
 		)
 		self.assertRegexpMatches(self.browser.current_url, '/accounts/login.+')
 
 		# Del is at a complete loss, so he finally decides to login.
-		inputs = self.gather_form_inputs()
-		inputs[0].send_keys('jj@gmail.com')
-		inputs[1].send_keys('123')
-		login_button = self.browser.find_element_by_id('id_login')
-		login_button.click()
+		#inputs = self.gather_form_inputs()
+		#inputs[0].send_keys('jj@gmail.com')
+		#inputs[1].send_keys('123')
+		#login_button = self.browser.find_element_by_id('id_login')
+		#login_button.click()
+		self.login_test_user()
 
 		# Del is taken to the reminders home page
 		self.assertRegexpMatches(self.browser.current_url, '/reminders/home/')

@@ -31,6 +31,8 @@ class ReturningVisitorTest(FunctionalTest):
 	def test_user_can_create_reminder_and_then_edit_it_later(self):
 		## For consistency
 		wait = WebDriverWait(self.browser, 10)
+		## Because of decorators, we need to login a user for these tests to past
+		self.login_test_user()
 
 		# Billy lands on the home page and creates a reminder
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
@@ -45,6 +47,8 @@ class ReturningVisitorTest(FunctionalTest):
 		# A little while later Billy realizes he is fallible and must change his reminder.
 		# So he opens up the browser, and goes to his reminder list
 		self.browser = webdriver.Firefox()
+		## Log back in
+		self.login_test_user()
 		self.browser.get(billy_url)
 		wait = WebDriverWait(self.browser, 10)
 		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
