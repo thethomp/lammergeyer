@@ -18,8 +18,17 @@ class EmailAuthBackend(object):
 		except CustomUser.DoesNotExist:
 			return None
 		"""
-		If errors are not raised this is probably the reason.
-		I'm not sure if the 'if user.check_password(password)'
-		failing causes the Except statement to execute. If it
-		does not, we wont raise a ValidationError
+		If the user exists but the password does not check out,
+		we still return None. That is, all modules return None 
+		if we don't explicitly tell them to return something
 		"""
+
+	def get_user(self, user_id):
+		"We need to implement this method so "
+		try:
+			user = CustomUser.objects.get(pk=user_id)
+			if user.is_active:
+				return user
+			return None
+		except CustomUser.DoesNotExist:
+			return None
