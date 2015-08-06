@@ -1,7 +1,6 @@
 {% extends 'accounts/base.html' %}
 
 {% block content %}
-	{% include 'accounts/form.html' with name='Login' submit_id='id_login' redirect_url='' %}
+	{% include 'accounts/form.html' with name='Login' submit_id='id_login' %}
 	<a href="{% url 'account_register' %}">Register</a>
-	{# <a href="http://localhost:8000/accounts/register/">Register</a> #}
 {% endblock %}
