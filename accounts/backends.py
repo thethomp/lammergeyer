@@ -24,7 +24,10 @@ class EmailAuthBackend(object):
 		"""
 
 	def get_user(self, user_id):
-		"We need to implement this method so "
+		"""
+		We need to implement this method so we can use django's
+		login
+		"""
 		try:
 			user = CustomUser.objects.get(pk=user_id)
 			if user.is_active:
