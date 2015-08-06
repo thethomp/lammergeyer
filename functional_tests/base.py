@@ -84,3 +84,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
 		wait.until(expected_conditions.invisibility_of_element_located((By.ID, buttons[1].get_attribute('id'))))
+
+	def gather_form_inputs(self):
+		form = self.browser.find_element_by_tag_name('form')
+		inputs = form.find_elements_by_tag_name('input')
+		inputs = [input for input in inputs if 'hidden' not in input.get_attribute('type')]
+		return inputs
