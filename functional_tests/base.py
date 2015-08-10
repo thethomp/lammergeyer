@@ -6,6 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import sys
 
+from accounts.models import CustomUser
+
 REMINDER_ONE = {
 	'id_title': 'Buy milk', 
 	'id_alarm': '2015-06-22', 
@@ -43,10 +45,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 		super(FunctionalTest, cls).tearDownClass()
 
 	def setUp(self):
-		self.browser = webdriver.Firefox() #we start the browser here
-		self.browser.implicitly_wait(3) #this makes sure we wait after the browser has been started and ensures the page has loaded
+		self.browser = webdriver.Firefox() 
+		self.browser.implicitly_wait(3)
 
-	#Similarly, tearDown is inherited from TestCase and overriden with our own functionality here
 	def tearDown(self):
 		self.browser.quit()
 
@@ -84,3 +85,25 @@ class FunctionalTest(StaticLiveServerTestCase):
 		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
 		wait.until(expected_conditions.invisibility_of_element_located((By.ID, buttons[1].get_attribute('id'))))
+
+	def gather_form_inputs(self):
+		form = self.browser.find_element_by_tag_name('form')
+		inputs = form.find_elements_by_tag_name('input')
+		inputs = [input for input in inputs if 'hidden' not in input.get_attribute('type')]
+		return inputs
+
+	def login_test_user(self):
+		if not CustomUser.objects.filter(email='jj@gmail.com').exists():
+			CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		self.browser.get('%s%s' % (self.server_url, '/accounts/login/',))
+		inputs = self.gather_form_inputs()
+		inputs[0].send_keys('jj@gmail.com')
+		inputs[1].send_keys('123')
+		submit_button = self.browser.find_element_by_id('id_login')
+		submit_button.click()
+
+	def get_all_reminder_values(self):
+		table = self.browser.find_element_by_id('id_reminder_list')
+		reminders = table.find_elements_by_tag_name('input')
+		reminders = [reminder.get_attribute('value') for reminder in reminders]
+		return reminders

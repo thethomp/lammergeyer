@@ -7,12 +7,6 @@ from .base import FunctionalTest
 
 class NewUserTest(FunctionalTest):
 
-	def gather_form_inputs(self):
-		form = self.browser.find_element_by_tag_name('form')
-		inputs = form.find_elements_by_tag_name('input')
-		inputs = [input for input in inputs if 'hidden' not in input.get_attribute('type')]
-		return inputs
-
 	def test_new_visitor_can_create_account(self):
 		# Della Bahee happens to find himself on the accounts page.
 		## Url should be 'thethomp.info/accounts/login/'
@@ -61,13 +55,7 @@ class NewUserTest(FunctionalTest):
 
 		# Della Bahee is eager to test the reminder functionality so he quickly logs in with the values from
 		# the registration page
-		inputs = self.gather_form_inputs()
-		wait = WebDriverWait(self.browser, 10)
-		wait.until(expected_conditions.visibility_of(inputs[0]))
-		inputs[0].send_keys('jj@gmail.com')
-		inputs[1].send_keys('123')
-		login_button = self.browser.find_element_by_id('id_login')
-		login_button.click()
+		self.login_test_user()
 
 		# No errors show up, and Del is redirected to the reminders app urls
 		errors = self.browser.find_elements_by_css_selector('has-error')

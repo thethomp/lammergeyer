@@ -14,16 +14,10 @@ from selenium.webdriver.common.keys import Keys
 
 class NewVisitorTest(FunctionalTest):
 
-	""" Utility Functions"""
-	def get_all_reminder_values(self):
-		table = self.browser.find_element_by_id('id_reminder_list')
-		reminders = table.find_elements_by_tag_name('input')
-		reminders = [reminder.get_attribute('value') for reminder in reminders]
-		return reminders
-
-	"""Functional Test"""
-
 	def test_new_user_can_create_and_display_a_new_reminder(self):
+		## Because of decorators, we need to login a user for these tests to past
+		self.login_test_user()
+
 		# Billy lands on the home page
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		
@@ -78,6 +72,8 @@ class NewVisitorTest(FunctionalTest):
 		## from the grocery reminder list is coming through from cookies
 		self.browser.quit()
 		self.browser = webdriver.Firefox()
+		## Log in again
+		self.login_test_user()
 
 		# Billy visits the home page and there is no trace of his previous reminders
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))

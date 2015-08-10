@@ -23,6 +23,8 @@ class ReminderValidationTest(FunctionalTest):
 		## the following test. Inconsistency with the functional test results has been killing 
 		## progress.
 		wait = WebDriverWait(self.browser, 10)
+		## Because of decorators, we need to login a user for these tests to past
+		self.login_test_user()
 
 		# Della Bahee lands on the user page and expands the reminder creation panel. 
 		# Like a dum dum, he neglects each input field and simply hits Create reminder! button.

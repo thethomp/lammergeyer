@@ -1,3 +1,7 @@
+from django.test import TestCase
+
+from accounts.models import CustomUser
+
 REMINDER_ONE = {
 	'title' : 'Buy milk', 
 	'alarm': '2015-06-22', 
@@ -16,3 +20,12 @@ EMPTY_REMINDER = {
 	'snooze': '10.0', 
 	'repeat': '24.0'
 }
+
+class UserTestCase(TestCase):
+	def setUp(self):
+		self.user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		self.client.get('/accounts/login/')
+		self.client.login(email=self.user.email, password='123')
+
+	def tearDown(self):
+		self.user.delete()

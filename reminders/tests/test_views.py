@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import resolve, reverse
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -10,10 +10,10 @@ from django.utils import timezone
 from reminders.views import home_page, reminder_home
 from reminders.models import Reminder, List
 from reminders.forms import ReminderForm, EMPTY_REMINDER_TITLE_ERROR
-from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER
+from base import REMINDER_ONE, REMINDER_TWO, EMPTY_REMINDER, UserTestCase
 import reminders.timezone_object as tzobj
 
-class RemindersPageTest(TestCase):
+class RemindersPageTest(UserTestCase):
 	maxDiff = None
 
 	def test_reminders_home_url_resolves_to_reminder_home_view(self):
@@ -22,6 +22,7 @@ class RemindersPageTest(TestCase):
 
 	def test_reminder_home_returns_correct_html(self):
 		request = HttpRequest()
+		request.user = self.user
 		response = reminder_home(request)
 
 		expected_html = render_to_string('reminders/reminder_home.html', {'form': ReminderForm()})
@@ -38,6 +39,7 @@ class RemindersPageTest(TestCase):
 
 	def test_reminder_home_only_saves_reminders_when_necessary(self):
 		request = HttpRequest()
+		request.user = self.user
 		reminder_home(request)
 		self.assertEqual(Reminder.objects.count(), 0)
 
@@ -47,6 +49,7 @@ class RemindersPageTest(TestCase):
 			'/reminders/new',
 			data=REMINDER_ONE
 		)
+
 		new_list  = List.objects.first()
 		self.assertRedirects(response, '/reminders/%d/' % (new_list.id,))
 
@@ -59,7 +62,7 @@ class RemindersPageTest(TestCase):
 		new_item = Reminder.objects.first()
 		self.assertEqual(new_item.title, 'Buy milk')
 
-class ReminderListViewTest(TestCase):
+class ReminderListViewTest(UserTestCase):
 
 	def post_invalid_input(self):
 		list_ = List.objects.create()
@@ -200,10 +203,64 @@ class ReminderListViewTest(TestCase):
 	def test_displays_reminder_form(self):
 		list_ = List.objects.create()
 		response = self.client.get('/reminders/%d/' % (list_.id,))
+		self.client.login(email=self.user.email, password='123')
+		response = self.client.get('/reminders/%d/' % (list_.id,))
+
 		self.assertIsInstance(response.context['form'], ReminderForm)
 		self.assertContains(response, 'name="title"')
 
-class HomePageTest(TestCase):
+class LoginRequiredTest(TestCase):
+	# We can test GET or POST requests to test this since we just want to see if the 
+	# view redirects when requested by any method
+	def test_reminder_home_redirect_when_not_logged_in(self):
+		response = self.client.get(reverse('reminder_home'))
+		self.assertEqual(response.status_code, 302)
 
-	def test_root_url_resolves_to_home_page(self):
-		pass
+	def test_reminder_home_redirects_login_view_when_not_logged_in(self):
+		response = self.client.get(reverse('reminder_home'))
+		self.assertRegexpMatches(response['Location'], '/accounts/login/.+')
+
+	def test_view_reminder_redirects_when_not_logged_in(self):
+		list_ = List.objects.create()
+		response = self.client.get(reverse('view_reminders', args=[list_.id]))
+		self.assertEqual(response.status_code, 302)
+
+	def test_view_reminder_redirects_login_view_when_not_logged_in(self):
+		response = self.client.get(reverse('view_reminders', args=[1]))
+		self.assertRegexpMatches(response['Location'], '/accounts/login/.+')
+
+	def test_edit_reminder_redirects_when_not_logged_in(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		list_ = List.objects.create()
+		reminder = Reminder.objects.create(
+			title='Buy milk',
+			alarm=date,
+			snooze=5,
+			repeat=10,
+			list=list_
+		)
+		response = self.client.get(reverse('edit_reminder', kwargs={'list_id':list_.id, 'pk':reminder.pk}))
+		self.assertEqual(response.status_code, 302)
+
+	def test_edit_reminder_redirects_login_view_when_not_logged_in(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		list_ = List.objects.create()
+		reminder = Reminder.objects.create(
+			title='Buy milk',
+			alarm=date,
+			snooze=5,
+			repeat=10,
+			list=list_
+		)
+		response = self.client.get(reverse('edit_reminder', kwargs={'list_id':list_.id, 'pk':reminder.pk}))
+		self.assertRegexpMatches(response['Location'], '/accounts/login/.+')
+
+	def test_new_reminder_list_view_redirects_when_not_logged_in(self):
+		response = self.client.get(reverse('new_reminder_list'))
+		self.assertEqual(response.status_code, 302)
+
+	def test_new_reminder_list_view_redirects_login_view_when_not_logged_in(self):
+		response = self.client.get(reverse('new_reminder_list'))
+		self.assertRegexpMatches(response['Location'], '/accounts/login/.+')
