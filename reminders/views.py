@@ -1,17 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext, loader
-from django.shortcuts import render_to_response
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 import datetime
 
 from .models import Reminder, List
-from reminders.forms import UserForm, UserProfileForm, ReminderForm
+from reminders.forms import ReminderForm
 import reminders.timezone_object as tzobj
-# Create your views here.
 
 def home_page(request):
 	return render(request, 'reminders/home.html', {'form': ReminderForm()})
