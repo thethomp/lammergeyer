@@ -27,7 +27,6 @@ class ReturningVisitorTest(FunctionalTest):
 
 		# He thinks the reminder is perfect and continues doing whatever he is doing 
 		# knowing that he won't forget. He closes the browser.
-		billy_url = self.browser.current_url
 		self.browser.quit()
 
 		# A little while later Billy realizes he is fallible and must change his reminder.
@@ -35,7 +34,7 @@ class ReturningVisitorTest(FunctionalTest):
 		self.browser = webdriver.Firefox()
 		## Log back in
 		self.login_test_user()
-		self.browser.get(billy_url)
+		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
 		wait = WebDriverWait(self.browser, 10)
 		wait.until(expected_conditions.element_to_be_clickable((By.ID, 'id_reminder_panel_')))
 
@@ -49,7 +48,7 @@ class ReturningVisitorTest(FunctionalTest):
 
 		self.create_or_edit_reminder(REMINDER_TWO, panel='id_reminder_panel_1')
 		
-		self.assertRegexpMatches(billy_url, '/reminders/.+')
+		self.assertRegexpMatches(self.browser.current_url, '/reminders/home/')
 
 		reminders = self.get_all_reminder_values()
 		for value in REMINDER_ONE.itervalues():

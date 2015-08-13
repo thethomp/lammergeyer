@@ -24,12 +24,12 @@ class NewVisitorTest(FunctionalTest):
 		# Billy is ready to create a new reminder so he expands the new reminder panel.
 		# Billy gives his reminder a title, a date time, a snooze duration, 
 		# and finally how often the reminder repeats. He then submits the form 
-		# by clicking the Create button. Upon clicking "Create" Billy is taken to a new url
-		# where his reminder shows up in the table
+		# by clicking the Create button. Upon clicking "Create" Billy stays on the same page
+		# but a reminder now appears below the create reminder form.
 		self.create_or_edit_reminder(REMINDER_ONE)
 		
 		billy_first_list_url = self.browser.current_url
-		self.assertRegexpMatches(billy_first_list_url, '/reminders/.+')
+		self.assertRegexpMatches(billy_first_list_url, '/reminders/home/')
 
 		# After the form has been submitted, the reminder title is seen as a button in the table below
 		wait = WebDriverWait(self.browser, 10)
@@ -39,6 +39,7 @@ class NewVisitorTest(FunctionalTest):
 
 		# Billy clicks the newly created reminder button in the table below. He sees that
 		# the reminder expands and contains all the data entered above
+		## Testing attributes is not a great thing to do, seems wildly inconsistent
 		panel = self.browser.find_element_by_id('id_reminder_panel_1')
 		buttons = panel.find_elements_by_tag_name('button')
 		buttons[0].click()
@@ -67,43 +68,30 @@ class NewVisitorTest(FunctionalTest):
 		for value in REMINDER_TWO.itervalues():
 			self.assertIn(value, reminders)
 
-		# Billy wants to create another list of reminders for work related scenarios
-		## Use new browser session to make sure that no information 
-		## from the grocery reminder list is coming through from cookies
+		# Billy cannot think of anything else to put down so he closes the browser.
 		self.browser.quit()
+
+		# Later something comes up for which Billy needs a new reminder. So he opens
+		# the reminders app and logs back in. He sees his first two reminders.
 		self.browser = webdriver.Firefox()
-		## Log in again
 		self.login_test_user()
-
-		# Billy visits the home page and there is no trace of his previous reminders
 		self.browser.get('%s%s' % (self.server_url, '/reminders/home/',))
-		reminders = []
-		with self.assertRaises(NoSuchElementException):
-			reminders = self.get_all_reminder_values()
 
+		reminders = self.get_all_reminder_values()
 		for value in REMINDER_ONE.itervalues():
-			self.assertNotIn(value, reminders)
+			self.assertIn(value, reminders)
 		for value in REMINDER_TWO.itervalues():
-			self.assertNotIn(value, reminders)
+			self.assertIn(value, reminders)
 
-		# Billy starts his second list of reminders
+		# Then creates his third and final? reminder.
 		self.create_or_edit_reminder(REMINDER_THREE)
-
-		# Billy's second list is assigned a new url
-		billy_second_list_url = self.browser.current_url
 		
-		self.assertRegexpMatches(billy_second_list_url, '/reminders/.+')
-		self.assertNotEqual(billy_first_list_url, billy_second_list_url)
-
-		# The old list is not there and the new reminder shows up on a new list
-		panel = self.browser.find_element_by_id('id_reminder_panel_1')
-		buttons = panel.find_elements_by_tag_name('button')
-		buttons[0].click()
+		# All three reminders show up below the create reminder form
 		reminders = self.get_all_reminder_values()
 
 		for value in REMINDER_ONE.itervalues():
-			self.assertNotIn(value, reminders)
+			self.assertIn(value, reminders)
 		for value in REMINDER_TWO.itervalues():
-			self.assertNotIn(value, reminders)
+			self.assertIn(value, reminders)
 		for value in REMINDER_THREE.itervalues():
 			self.assertIn(value, reminders)

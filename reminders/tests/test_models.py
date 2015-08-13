@@ -1,10 +1,12 @@
 import datetime
 import sys
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from reminders.models import Reminder, List
+
+from reminders.models import Reminder
+from accounts.models import CustomUser
 import reminders.timezone_object as tzobj
 
 
@@ -24,40 +26,37 @@ class ReminderModelTest(TestCase):
 		reminder = Reminder(title='Buy something, anything')
 		self.assertEqual(str(reminder), 'Buy something, anything')
 
-class ListModelTest(TestCase):
+class UserReminderModelTest(TransactionTestCase):
 
-	def test_get_absolute_url(self):
-		list_ = List.objects.create()
-		self.assertEqual(list_.get_absolute_url(), '/reminders/%d/' % (list_.id,))
+	def setUp(self):
+		self.user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 
-class ListAndReminderModelTest(TestCase):
+	def tearDown(self):
+		self.user.delete()
 
-	def test_reminder_is_related_to_list(self):
+	def test_reminder_is_related_to_list_and_user(self):
 		reminder = Reminder()
-		list_ = List.objects.create()
-		reminder.list = list_
+		reminder.user = self.user
 		reminder.save()
-		self.assertIn(reminder, list_.reminder_set.all())
+		self.assertIn(reminder, self.user.reminder_set.all())
 
 	def test_editing_existing_reminders(self):
-		list_ = List.objects.create()
 		utc = tzobj.UTC()
 		reminder_one = Reminder.objects.create(
 			title='Buy milk',
 			alarm=datetime.datetime(2015, 7, 2, 16, tzinfo=utc),
 			snooze=10,
 			repeat=20,
-			list=list_
+			user=self.user
 		)
 		reminder_two = Reminder.objects.create(
 			title='Buy beer',
 			alarm=datetime.datetime(2015, 8, 3, 16, tzinfo=utc),
 			snooze=11,
 			repeat=21,
-			list=list_
+			user=self.user
 		)
-		reminder_pk = reminder_two.pk
-		saved_reminder = Reminder.objects.get(pk=reminder_pk)
+		saved_reminder = Reminder.objects.get(pk=reminder_two.pk)
 		saved_reminder.title = 'Buy milk'
 		saved_reminder.alarm = datetime.datetime(2015, 7, 2, 16, tzinfo=utc)
 		saved_reminder.snooze = 10
@@ -70,12 +69,16 @@ class ListAndReminderModelTest(TestCase):
 		self.assertEqual(saved_reminder.alarm, datetime.datetime(2015, 7, 2, 16, tzinfo=utc))
 		self.assertEqual(saved_reminder.snooze, 10)
 		self.assertEqual(saved_reminder.repeat, 240)
-		self.assertEqual(saved_reminder.list, list_)
-		self.assertEqual(saved_reminder.pk, reminder_pk)
+		self.assertEqual(saved_reminder.user, self.user)
+		self.assertEqual(saved_reminder.pk, reminder_two.pk)
 
 	def test_cannot_save_empty_reminders(self):
-		list_ = List.objects.create()
-		reminder = Reminder(title='', list=list_)
+		reminder = Reminder(title='', user=self.user)
 		with self.assertRaises(ValidationError):
 			reminder.save()
 			reminder.full_clean()
+
+	def test_foreign_key_object_instances(self):
+		reminder = Reminder()
+		reminder.user = self.user
+		self.assertTrue(isinstance(reminder.user, CustomUser))

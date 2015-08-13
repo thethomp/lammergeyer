@@ -1,3 +1,4 @@
+from unittest import skip
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
@@ -16,6 +17,11 @@ class UserModelTests(TestCase):
 		user = CustomUser(email='jj@gmail.com', password='1234')
 		self.assertEqual(str(user), 'jj@gmail.com')
 		self.assertEqual(user.password, '1234')
+
+	@skip('skipped')
+	def test_email_is_primary_key(self):
+		user = CustomUser()
+		self.assertFalse(hasattr(user, 'id'))
 
 class UserManagerTests(TestCase):
 
