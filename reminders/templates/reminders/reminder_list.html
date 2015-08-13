@@ -4,6 +4,10 @@
 
 {% block cdn_css %}{{ block.super }}{% endblock %}
 
+{% block extrahead %}
+	{% if user.is_authenticated %}<a href="{% url 'account_logout' %}" id="id_logout">Logout</a>{% endif %}
+{% endblock %}
+
 {% block content %}
 	<header><h1>Your Reminders</h1></header>
 

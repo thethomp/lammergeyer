@@ -62,14 +62,7 @@ class RemindersPageTest(UserTestCase):
 		new_item = Reminder.objects.first()
 		self.assertEqual(new_item.title, 'Buy milk')
 
-class ReminderListViewTest(UserTestCase):
-
-	def post_invalid_input(self):
-		return self.client.post(
-			'/reminders/home/',
-			data=EMPTY_REMINDER
-		)
-
+class EditReminderTest(UserTestCase):
 	def test_save_a_POST_request_to_existing_reminder(self):
 		utc = tzobj.UTC()
 		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
@@ -96,32 +89,6 @@ class ReminderListViewTest(UserTestCase):
 		self.assertEqual(edited_reminder.repeat, 36.0)
 		self.assertEqual(edited_reminder.user, self.user)
 		self.assertEqual(Reminder.objects.count(), 1)
-
-	def test_validation_errors_are_shown_on_home_page(self):
-		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
-		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
-
-	def test_invalid_input_renders_list_template(self):
-		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
-		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
-
-	def test_for_invalid_nothing_saved_to_db(self):
-		self.post_invalid_input()
-		self.assertEqual(Reminder.objects.count(), 0)
-
-	def test_for_invalid_renders_reminder_list_template(self):
-		response = self.post_invalid_input()
-		self.assertEqual(response.status_code, 200)
-		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
-
-	def test_for_invalid_input_passes_form_to_template(self):
-		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
-		self.assertIsInstance(response.context['form'], ReminderForm)
-
-	def test_for_invalid_shows_error_on_page(self):
-		response = self.post_invalid_input()	
-		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
 
 class LoginRequiredTest(TestCase):
 	# We can test GET or POST requests to test this since we just want to see if the 
@@ -161,3 +128,37 @@ class LoginRequiredTest(TestCase):
 		)
 		response = self.client.get(reverse('edit_reminder', kwargs={'pk':reminder.pk}))
 		self.assertRegexpMatches(response['Location'], '/accounts/login/.+')
+
+class ValidationOfInputTests(UserTestCase):
+
+	def post_invalid_input(self):
+		return self.client.post(
+			'/reminders/home/',
+			data=EMPTY_REMINDER
+		)
+
+	def test_validation_errors_are_shown_on_home_page(self):
+		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
+		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
+
+	def test_invalid_input_renders_list_template(self):
+		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
+
+	def test_for_invalid_nothing_saved_to_db(self):
+		self.post_invalid_input()
+		self.assertEqual(Reminder.objects.count(), 0)
+
+	def test_for_invalid_renders_reminder_list_template(self):
+		response = self.post_invalid_input()
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
+
+	def test_for_invalid_input_passes_form_to_template(self):
+		response = self.client.post('/reminders/home/', data=EMPTY_REMINDER)
+		self.assertIsInstance(response.context['form'], ReminderForm)
+
+	def test_for_invalid_shows_error_on_page(self):
+		response = self.post_invalid_input()	
+		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)

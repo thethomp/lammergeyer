@@ -62,3 +62,7 @@ class NewUserTest(FunctionalTest):
 		self.assertEqual(len(errors), 0)
 		reminders_url = self.browser.current_url
 		self.assertRegexpMatches(reminders_url, '/reminders/home.+')
+
+		# Not having any reminders to make, Della Bahee logs out
+		logout_button = self.browser.find_element_by_id('id_logout')
+		logout_button.click()

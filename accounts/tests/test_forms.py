@@ -113,7 +113,7 @@ class TestRegisterForm(TestCase):
 			data=VALID_USER
 		)
 		self.assertFalse(form.is_valid())
-		self.assertIn('Email already already in use', form.as_p())
+		self.assertIn('Email already in use', form.as_p())
 
 
 class LoginFormTest(TestCase):

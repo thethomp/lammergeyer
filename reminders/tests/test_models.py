@@ -34,7 +34,7 @@ class UserReminderModelTest(TransactionTestCase):
 	def tearDown(self):
 		self.user.delete()
 
-	def test_reminder_is_related_to_list_and_user(self):
+	def test_reminder_is_related_to_user(self):
 		reminder = Reminder()
 		reminder.user = self.user
 		reminder.save()
@@ -78,7 +78,7 @@ class UserReminderModelTest(TransactionTestCase):
 			reminder.save()
 			reminder.full_clean()
 
-	def test_foreign_key_object_instances(self):
+	def test_foreign_key_object_instance(self):
 		reminder = Reminder()
 		reminder.user = self.user
 		self.assertTrue(isinstance(reminder.user, CustomUser))

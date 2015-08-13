@@ -91,7 +91,7 @@ class RegisterForm(forms.ModelForm):
 
 	error_messages = {
 		'password_mismatch': _('Passwords do not match'),
-		'email_exists':_('Email already already in use'),
+		'email_exists':_('Email already in use'),
 	}
 
 	email = forms.EmailField(label=_("Email Address"),
