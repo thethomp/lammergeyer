@@ -22,7 +22,7 @@ class NewVisitorTest(FunctionalTest):
 	def test_multiple_users_can_create_and_display_their_own_reminders(self):
 		# Billy logs in, is redirected to the home page, and creates a few reminders
 		self.login_test_user()
-		home_url = self.browser.get(self.browser.current_url)
+		home_url = self.browser.current_url
 
 		self.assertRegexpMatches(home_url, '/reminders/home/')
 		self.create_or_edit_reminder(REMINDER_ONE)
@@ -73,7 +73,10 @@ class NewVisitorTest(FunctionalTest):
 		logout_button.click()
 
 		# Billy logs in again, sees only his reminders, and then logs out
-		self.browser.login_test_user()
+		self.login_test_user()
+
+		reminders = self.get_all_reminder_values()
+
 		for value in REMINDER_ONE.itervalues():
 			self.assertIn(value, reminders)
 		for value in REMINDER_TWO.itervalues():
