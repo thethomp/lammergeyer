@@ -1,5 +1,7 @@
-from django.test import TestCase
+from unittest import skip
+from django.test import TestCase, TransactionTestCase
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 from accounts.models import CustomUser
 
@@ -17,7 +19,16 @@ class UserModelTests(TestCase):
 		self.assertEqual(str(user), 'jj@gmail.com')
 		self.assertEqual(user.password, '1234')
 
-class UserManagerTests(TestCase):
+	@skip('skipped')
+	def test_email_is_primary_key(self):
+		user = CustomUser()
+		self.assertFalse(hasattr(user, 'id'))
+
+	def test_custom_user_is_authenticated(self):
+		user = CustomUser()
+		self.assertTrue(user.is_authenticated())
+
+class UserManagerTests(TransactionTestCase):
 
 	def test_user_manager_creates_user(self):
 		user = CustomUser.objects.create_user(email='jj@gmail.com', password='1234')
@@ -44,3 +55,9 @@ class UserManagerTests(TestCase):
 		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 		saved_user = CustomUser.objects.first()
 		self.assertNotEqual(saved_user.password, '123')
+
+	def test_duplicate_email_accounts_not_allowed(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		with self.assertRaises(IntegrityError):
+			CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		self.assertEqual(CustomUser.objects.count(), 1)

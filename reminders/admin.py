@@ -1,7 +1,5 @@
 from django.contrib import admin
-from reminders.models import Reminder#, UserProfile 
+from reminders.models import Reminder
 # Register your models here.
 
 admin.site.register(Reminder)
-#admin.site.register(UserProfile)
-#admin.site.register(PhoneModel)

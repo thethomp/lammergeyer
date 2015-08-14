@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from accounts.models import CustomUser
 
@@ -21,7 +21,8 @@ EMPTY_REMINDER = {
 	'repeat': '24.0'
 }
 
-class UserTestCase(TestCase):
+# For views testing
+class UserTestCase(TransactionTestCase):
 	def setUp(self):
 		self.user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 		self.client.get('/accounts/login/')

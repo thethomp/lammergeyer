@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import resolve, reverse
 
-from accounts.views import account_login, account_register
+from accounts.views import account_login, account_register, account_logout
 from accounts.forms import LoginForm, RegisterForm
 from accounts.models import CustomUser
 from .base import VALID_USER, INVALID_USER
@@ -55,6 +55,15 @@ class AccountsLoginPageTest(TestCase):
 			}
 		)
 		self.assertRedirects(response, '/reminders/home/')
+
+	def test_logged_in_session_dict_has_user_id(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		with self.assertRaises(KeyError):
+			session = self.client.session
+			session['_auth_user_id']
+		self.client.login(email=user.email, password='123')
+		session = self.client.session
+		self.assertEqual(str(user.id), session['_auth_user_id'])
 
 
 class AccountsRegisterPageTest(TestCase):
@@ -119,3 +128,39 @@ class AccountsRegisterPageTest(TestCase):
 		)
 		self.assertIn('An email address is required', response.content.decode())
 		self.assertIn('Password cannot be blank', response.content.decode())
+
+	def test_register_existing_email_displays_error(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		response = self.client.post(
+			'/accounts/register/',
+			data=VALID_USER
+		)
+		self.assertIn('Email already in use', response.content.decode())
+
+class AccountsLogoutTest(TestCase):
+	maxDiff = None
+
+	def test_logout_url_resolves_to_accounts_logout_view(self):
+		found = resolve('/accounts/logout')
+		self.assertEqual(found.func, account_logout)
+
+	def test_logout_redirects(self):
+		response = self.client.get('/accounts/logout')
+		self.assertEqual(response.status_code, 302)
+
+	def test_logout_redirects_to_login_page(self):
+		response = self.client.get('/accounts/logout')
+		self.assertRedirects(response, reverse('account_login'))
+
+	def test_logout_view_logs_out_user(self):
+		CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		self.client.post(
+			'/accounts/login/',
+			data={
+				'email': 'jj@gmail.com',
+				'password': '123'
+			}
+		)
+		self.assertTrue(self.client.session['_auth_user_id'])
+		self.client.get('/accounts/logout')
+		self.assertFalse(self.client.session.get('_auth_user_id', None))

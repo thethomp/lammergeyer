@@ -23,3 +23,7 @@ def account_register(request):
 			form.save()
 			return redirect('account_login')
 	return render(request, 'accounts/register.html', {'form': form})
+
+def account_logout(request):
+	django_logout(request)
+	return redirect('account_login')
