@@ -27,7 +27,7 @@ class RemindersPageTest(UserTestCase):
 		request.user = self.user
 		response = reminder_home(request)
 
-		expected_html = render_to_string('reminders/reminder_list.html', {'form': ReminderForm()})
+		expected_html = render_to_string('reminders/reminder_list.html', {'form': ReminderForm(), 'user': request.user})
 
 		self.assertMultiLineEqual(response.content.decode(), expected_html)
 
