@@ -63,6 +63,13 @@ class RemindersPageTest(UserTestCase):
 		self.assertEqual(new_item.title, 'Buy milk')
 
 class EditReminderTest(UserTestCase):
+
+	def post_invalid_edit(self, reminder_pk):
+		return self.client.post(
+			'/reminders/edit_reminder/%d' % (reminder_pk,),
+			data=EMPTY_REMINDER
+		)
+
 	def test_save_a_POST_request_to_existing_reminder(self):
 		utc = tzobj.UTC()
 		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
@@ -89,6 +96,65 @@ class EditReminderTest(UserTestCase):
 		self.assertEqual(edited_reminder.repeat, 36.0)
 		self.assertEqual(edited_reminder.user, self.user)
 		self.assertEqual(Reminder.objects.count(), 1)
+
+	def test_editing_reminder_with_invalid_input_does_not_save(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		reminder = Reminder.objects.create(
+			title='Drink milk shakes',
+			alarm=date,
+			snooze=4.0,
+			repeat=12.0,
+			user=self.user
+		)
+		response = self.post_invalid_edit(reminder.pk)
+		self.assertEqual(Reminder.objects.count(), 1)
+		saved_reminder = Reminder.objects.first()
+
+		self.assertEqual(saved_reminder.title, 'Drink milk shakes')
+		self.assertEqual(saved_reminder.alarm, date)
+		self.assertEqual(saved_reminder.snooze, 4.0)
+		self.assertEqual(saved_reminder.repeat, 12.0)
+		self.assertEqual(saved_reminder.user, self.user)
+
+	def test_editing_reminder_with_invalid_input_displays_errors(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		reminder = Reminder.objects.create(
+			title='Drink milk shakes',
+			alarm=date,
+			snooze=4.0,
+			repeat=12.0,
+			user=self.user
+		)
+		response = self.post_invalid_edit(reminder.pk)
+		self.assertContains(response, EMPTY_REMINDER_TITLE_ERROR)
+
+	def test_editing_reminder_with_invalid_input_does_not_redirect(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		reminder = Reminder.objects.create(
+			title='Drink milk shakes',
+			alarm=date,
+			snooze=4.0,
+			repeat=12.0,
+			user=self.user
+		)
+		response = self.post_invalid_edit(reminder.pk)
+		self.assertEqual(response.status_code, 200)
+
+	def test_editing_reminder_with_invalid_input_renders_reminder_list(self):
+		utc = tzobj.UTC()
+		date = datetime.datetime(2015, 06, 23, tzinfo=utc)
+		reminder = Reminder.objects.create(
+			title='Drink milk shakes',
+			alarm=date,
+			snooze=4.0,
+			repeat=12.0,
+			user=self.user
+		)
+		response = self.post_invalid_edit(reminder.pk)
+		self.assertTemplateUsed(response, 'reminders/reminder_list.html')
 
 class LoginRequiredTest(TestCase):
 	# We can test GET or POST requests to test this since we just want to see if the 

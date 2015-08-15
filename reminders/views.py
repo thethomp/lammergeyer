@@ -34,24 +34,26 @@ def edit_reminder(request, pk):
 	## Two db hits
 	edited_reminder = Reminder.objects.get(pk=pk)
 	## Here
-	form = ReminderForm(instance=edited_reminder)
 	if request.method == 'POST':
 		form = ReminderForm(data=request.POST, instance=edited_reminder)
 		if form.is_valid():
 			form.save(for_user=request.user)
 			return redirect('reminder_home')
-	reminders = Reminder.objects.filter(list=edited_reminder.list)
+	reminders = Reminder.objects.filter(user=request.user)
 	forms = []
 	## Here; Can probably optimize later
 	for reminder in reminders:
-		if reminder.pk == pk:
-			forms.append(form)
+		if reminder.pk == int(pk):
+			# Append form that failed validation
+			forms.append((form, reminder.pk))
 		else:
-			forms.append((ReminderForm(initial={
+			forms.append(
+				(ReminderForm(
+					initial={
 			 			'title': reminder.title,
 			 			'alarm': reminder.alarm,
 			 			'snooze': reminder.snooze,
 			 			'repeat': reminder.repeat
-			 		}), reminder.pk))
-	form = ReminderForm()
-	return render(request, 'reminders/reminder_list.html', {'list': edited_reminder.list, 'form': form, 'forms': forms})
+			 		}), reminder.pk)
+			)
+	return render(request, 'reminders/reminder_list.html', {'form': ReminderForm(), 'forms': forms})

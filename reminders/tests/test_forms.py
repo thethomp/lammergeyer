@@ -29,6 +29,12 @@ class ReminderFormTest(TestCase):
 			[EMPTY_REMINDER_TITLE_ERROR]
 		)
 
+	def test_form_does_not_save_invalid_reminders(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		form = ReminderForm(data={'text': ''})
+		self.assertFalse(form.is_valid())
+		self.assertEqual(Reminder.objects.count(), 0)
+
 	def test_form_save_handles_saving_user(self):
 		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 		form = ReminderForm(data=REMINDER_ONE)
