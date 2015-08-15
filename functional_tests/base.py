@@ -63,11 +63,12 @@ class FunctionalTest(StaticLiveServerTestCase):
 			panel_id = panel
 		reminder_panel = wait.until(expected_conditions.element_to_be_clickable((By.ID, panel_id)))
 
+		inputs = reminder_panel.find_elements_by_tag_name('input')
 		buttons = reminder_panel.find_elements_by_tag_name('button')
-		buttons[0].click()
+		if not inputs[0].is_displayed():
+			buttons[0].click()
 		wait.until(expected_conditions.element_to_be_clickable((By.ID, buttons[1].get_attribute('id'))))
 
-		inputs = reminder_panel.find_elements_by_tag_name('input')
 		for input in inputs:
 			text = input.get_attribute('id')
 			if text in reminder:
