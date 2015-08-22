@@ -63,9 +63,8 @@ AUTHENTICATION_BACKENDS = ['accounts.backends.EmailAuthBackend']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lammergeyer',
-        'USER': 'jim',
-        'PASSWORD': 'slophound',
+        'NAME': 'reminders_test4',
+        'USER': 'thomp',
         'HOST': '127.0.0.1',
         'PORT': '3306',		
     }
@@ -73,6 +72,13 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
+
+# Email Settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'reminders.test.99@gmail.com'
+EMAIL_HOST_PASSWORD = '*********'
 
 LANGUAGE_CODE = 'en-us'
 
@@ -82,8 +88,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
-
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
