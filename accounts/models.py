@@ -36,7 +36,14 @@ class CustomUser(auth_models.AbstractBaseUser,
 			'Designates whether this user can log into this admin site.'
 		),
 	)
-
+	is_active = models.BooleanField(
+		_('active'),
+		default=True,
+		help_text=_(
+			'Designates whether this user should be treated as active.'
+			'Unselect this instead of deleting accounts'
+		),
+	)
 	USERNAME_FIELD = 'email'
 
 	objects = CustomUserManager()
