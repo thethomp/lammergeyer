@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
+from registration.models import RegistrationProfile
+
 from accounts.forms import RegisterForm, LoginForm
 from accounts.models import CustomUser
 from .base import VALID_USER, INVALID_USER
@@ -115,6 +117,21 @@ class TestRegisterForm(TestCase):
 		self.assertFalse(form.is_valid())
 		self.assertIn('Email already in use', form.as_p())
 
+	def test_form_creates_active_user(self):
+		form = RegisterForm(
+			data=VALID_USER
+		)
+		form.save()
+		user = CustomUser.objects.first()
+		self.assertTrue(user.is_active)
+
+	def test_form_returns_same_user(self):
+		form = RegisterForm(
+			data=VALID_USER
+		)
+		user = form.save()
+		saved_user = CustomUser.objects.first()
+		self.assertEqual(user, saved_user)
 
 class LoginFormTest(TestCase):
 

@@ -3,6 +3,8 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve, reverse
 
+from registration.models import RegistrationProfile
+
 from accounts.views import account_login, account_register, account_logout
 from accounts.forms import LoginForm, RegisterForm
 from accounts.models import CustomUser
@@ -136,6 +138,30 @@ class AccountsRegisterPageTest(TestCase):
 			data=VALID_USER
 		)
 		self.assertIn('Email already in use', response.content.decode())
+
+	def test_registration_profile_is_created_in_view(self):
+		self.client.post(
+			'/accounts/register/',
+			data=VALID_USER
+		)
+		self.assertTrue(RegistrationProfile.objects.count(), 1)
+
+	def test_register_view_assigns_registration_profile_to_user(self):
+		self.client.post(
+			'/accounts/register/',
+			data=VALID_USER,
+		)
+		user = CustomUser.objects.first()
+		profile = RegistrationProfile.objects.first()
+		self.assertEqual(user, profile.user)
+
+	def test_register_view_deactivates_user(self):
+		self.client.post(
+			'/accounts/register/',
+			data=VALID_USER,
+		)
+		user = CustomUser.objects.first()
+		self.assertFalse(user.is_active)
 
 class AccountsLogoutTest(TestCase):
 	maxDiff = None
