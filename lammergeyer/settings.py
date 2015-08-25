@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'reminders',
     'accounts',
+    'registration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -63,8 +64,9 @@ AUTHENTICATION_BACKENDS = ['accounts.backends.EmailAuthBackend']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'reminders_test4',
-        'USER': 'thomp',
+        'NAME': 'lammergeyer',
+        'USER': 'jim',
+        'PASSWORD': 'slophound',
         'HOST': '127.0.0.1',
         'PORT': '3306',		
     }
@@ -88,10 +90,13 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = False
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
+
+# django-registration-redux settings
+ACCOUNT_ACTIVATION_DAYS = 7
