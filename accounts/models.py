@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 # Create your models here.
 
@@ -36,6 +37,8 @@ class CustomUser(auth_models.AbstractBaseUser,
 			'Designates whether this user can log into this admin site.'
 		),
 	)
+	# Override AbstractBaseUser is_active class attribute with a field so the database can track this value
+	# on a per user basis.
 	is_active = models.BooleanField(
 		_('active'),
 		default=True,
@@ -44,6 +47,7 @@ class CustomUser(auth_models.AbstractBaseUser,
 			'Unselect this instead of deleting accounts'
 		),
 	)
+	date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 	USERNAME_FIELD = 'email'
 
 	objects = CustomUserManager()
