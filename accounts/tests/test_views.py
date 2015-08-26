@@ -1,3 +1,5 @@
+import random
+from unittest import skip
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -5,7 +7,10 @@ from django.core.urlresolvers import resolve, reverse
 
 from registration.models import RegistrationProfile
 
-from accounts.views import account_login, account_register, account_logout
+from accounts.views import (
+	account_login, account_register, 
+	account_logout, AccountActivationView
+)
 from accounts.forms import LoginForm, RegisterForm
 from accounts.models import CustomUser
 from .base import VALID_USER, INVALID_USER
@@ -66,7 +71,6 @@ class AccountsLoginPageTest(TestCase):
 		self.client.login(email=user.email, password='123')
 		session = self.client.session
 		self.assertEqual(str(user.id), session['_auth_user_id'])
-
 
 class AccountsRegisterPageTest(TestCase):
 	maxDiff = None
@@ -190,3 +194,39 @@ class AccountsLogoutTest(TestCase):
 		self.assertTrue(self.client.session['_auth_user_id'])
 		self.client.get('/accounts/logout')
 		self.assertFalse(self.client.session.get('_auth_user_id', None))
+
+class AccountActivationViewTest(TestCase):
+
+	@skip('skip for now')
+	def test_activation_url_resolves_to_view(self):
+		atof = 'abcdef'
+		digits = '0123456789'
+		random_string = ''.join(random.choice(atof + digits) for _ in range(40))
+		found = resolve('/accounts/activate/%s/' % (random_string,))
+		self.assertEqual(found.func, AccountActivationView.activate)
+
+	def test_view_activates_user(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		RegistrationProfile.objects.create_inactive_user(site=None, new_user=user, send_email=False)
+		profile = RegistrationProfile.objects.first()
+		self.client.get(
+			'/accounts/activate/%s/' % (profile.activation_key,)
+		)
+		user.refresh_from_db()
+		self.assertTrue(user.is_active)
+
+	def test_view_redirects_on_successful_activation(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		RegistrationProfile.objects.create_inactive_user(site=None, new_user=user, send_email=False)
+		profile = RegistrationProfile.objects.first()
+		response = self.client.get(
+			'/accounts/activate/%s/' % (profile.activation_key,)
+		)
+		self.assertRedirects(response, reverse('account_login'))
+
+	def test_view_displays_error_for_expired_keys(self):
+		pass
+
+	def test_view_displays_sensible_error_for_incorrect_key(self):
+		pass
+
