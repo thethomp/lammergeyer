@@ -4,6 +4,7 @@ from django.contrib.auth import login as django_login, logout as django_logout
 from accounts.forms import LoginForm, RegisterForm
 
 from registration.models import RegistrationProfile
+from registration.views import ActivationView
 
 # Create your views here.
 
@@ -35,5 +36,16 @@ def account_logout(request):
 	django_logout(request)
 	return redirect('account_login')
 
-def account_activation(request):
-	pass
+class AccountActivationView(ActivationView):
+
+	def activate(self, request, *args, **kwargs):
+		try:
+			user = RegistrationProfile.objects.activate_user(
+				kwargs['activation_key']
+			)
+			return user
+		except RegistrationProfile.DoesNotExist:
+			raise NotImplementedError
+
+	def get_success_url(self, request, user):
+		return 'account_login'
