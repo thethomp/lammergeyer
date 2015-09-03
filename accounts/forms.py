@@ -1,9 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import authenticate
 
 from accounts.models import CustomUser
-from django.contrib.auth import authenticate
-# forms.ModelForms has their own normalize_email I believe
 from accounts.utils import normalize_email as ne
 
 class LoginForm(forms.Form):

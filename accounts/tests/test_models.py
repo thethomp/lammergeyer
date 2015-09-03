@@ -5,6 +5,8 @@ from django.db import IntegrityError
 
 from accounts.models import CustomUser
 
+from registration.models import RegistrationProfile
+
 class UserModelTests(TestCase):
 
 	def test_default_values(self):
@@ -61,3 +63,17 @@ class UserManagerTests(TransactionTestCase):
 		with self.assertRaises(IntegrityError):
 			CustomUser.objects.create_user(email='jj@gmail.com', password='123')
 		self.assertEqual(CustomUser.objects.count(), 1)
+
+class UserRegistrationProfileTest(TestCase):
+
+	def test_registration_profile_deactivates_user(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		inactive_user = RegistrationProfile.objects.create_inactive_user(site=None, new_user=user)
+
+		user = CustomUser.objects.first()
+		self.assertFalse(user.is_active)
+
+	def test_registration_profile_user_equals_custom_user(self):
+		user = CustomUser.objects.create_user(email='jj@gmail.com', password='123')
+		profile = RegistrationProfile.objects.create_inactive_user(site=None, new_user=user)
+		self.assertEqual(user, profile)
