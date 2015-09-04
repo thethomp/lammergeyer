@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
 import datetime
 
 from .models import Reminder
@@ -16,16 +17,9 @@ def reminder_home(request):
 			return redirect('reminder_home')
 	# Supposedly this counts as one db hit, is cached, and later look-ups use the cached query set
 	reminders = Reminder.objects.filter(user=request.user)
-	forms = [(
-		ReminderForm(
-			initial={
-		 			'title': reminder.title,
-		 			'alarm': reminder.alarm,
-		 			'snooze': reminder.snooze,
-		 			'repeat': reminder.repeat
-		 	}), 
-		reminder.pk) 
-	for reminder in reminders
+	forms = [
+		(ReminderForm(initial=model_to_dict(instance=reminder)), reminder.pk) 
+		for reminder in reminders
 	]
 	return render(request, 'reminders/reminder_list.html', {'form': form, 'forms': forms})
 
@@ -47,13 +41,5 @@ def edit_reminder(request, pk):
 			# Append form that failed validation
 			forms.append((form, reminder.pk))
 		else:
-			forms.append(
-				(ReminderForm(
-					initial={
-			 			'title': reminder.title,
-			 			'alarm': reminder.alarm,
-			 			'snooze': reminder.snooze,
-			 			'repeat': reminder.repeat
-			 		}), reminder.pk)
-			)
+			forms.append((ReminderForm(initial=model_to_dict(instance=reminder)), reminder.pk))
 	return render(request, 'reminders/reminder_list.html', {'form': ReminderForm(), 'forms': forms})
